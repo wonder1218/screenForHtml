@@ -1,130 +1,3 @@
-let data = {
-  RATE: ['0.80', '0.36', '0.12', '0.49'],
-  DATADATE: ['2025/06/30', '2025/03/31', '2024/12/31', '2024/09/30'],
-};
-let StipLineData = {
-  '公司金融服务部': ['0.80', '0.36', '0.12', '0.49'],
-  '普惠及乡村振兴金融服务部': ['0.60', '0.67', '0.34', '0.43'],
-  '零售羚信货部': ['0.70', '0.89', '0.45', '0.53'],
-  '合计': ['0.30', '0.34', '0.56', '0.63'],
-  DATADATE: ['2025/06/30', '2025/03/31', '2024/12/31', '2024/09/30'],
-};
-let productLineData = {
-  '对公信贷产品': ['0.87', '0.36', '0.12', '0.49'],
-  '个人信贷产品': ['0.62', '0.67', '0.34', '0.43'],
-  DATADATE: ['2025/06/30', '2025/03/31', '2024/12/31', '2024/09/30'],
-};
-let customerData = {
-  RATE: ['0.80', '0.36', '0.12', '0.49'],
-  DATADATE: ['2025/06/30', '2025/03/31', '2024/12/31', '2024/09/30'],
-};
-let customerDistributeData = {
-  frontEarn: ['120', '132', '101'],
-  warnCondition: ['220', '182', '191'],
-  warnDistribute: ['340', '314', '292'],
-};
-let customerDistributeDataCopy = {
-  frontEarn: {
-    '正收益': '56个',
-    '无收益': '28个',
-    '负收益': '44个'
-  },
-  warnCondition: {
-    '上升': '22个',
-    '不变': '88个',
-    '下降': '18个',
-    '新增客户': '30个',
-  },
-  warnDistribute: {
-    '高于全行平均': '12个',
-    '等于全行平均': '56个',
-    '低于全行平均': '60个'
-  },
-};
-let xData = data.DATADATE;
-let yData = data.RATE;
-let series = [
-  {
-    name: '公司金融服务部',
-    type: 'line',
-    smooth: true,
-    color: '#F3410A',
-    // showSymbol: false,
-    label: {
-      show: true,           // 显示标签
-      position: 'top',      // 标签位置
-    },
-    data: StipLineData['公司金融服务部'],
-  },
-  {
-    name: '普惠及乡村振兴金融服务部',
-    type: 'line',
-    smooth: true,
-    color: '#F3B20B',
-    // showSymbol: false,
-    label: {
-      show: true,           // 显示标签
-      position: 'top',      // 标签位置
-    },
-    data: StipLineData['普惠及乡村振兴金融服务部'],
-  },
-  {
-    name: '零售羚信货部',
-    type: 'line',
-    smooth: true,
-    color: '#065DFF',
-    // showSymbol: false,
-    label: {
-      show: true,           // 显示标签
-      position: 'top',      // 标签位置
-    },
-    data: StipLineData['零售羚信货部'],
-  },
-  {
-    name: '合计',
-    type: 'line',
-    smooth: true,
-    color: '#31FBFB',
-    // showSymbol: false,
-    label: {
-      show: true,           // 显示标签
-      position: 'top',      // 标签位置
-    },
-    data: StipLineData['合计'],
-  },
-];
-let productSeries = [
-  {
-    name: '对公信贷产品',
-    type: 'line',
-    smooth: true,
-    color: '#F3410A',
-    // showSymbol: false,
-    label: {
-      show: true,           // 显示标签
-      position: 'top',      // 标签位置
-    },
-    data: productLineData['对公信贷产品'],
-  },
-  {
-    name: '个人信贷产品',
-    type: 'line',
-    smooth: true,
-    color: '#F3B20B',
-    // showSymbol: false,
-    label: {
-      show: true,           // 显示标签
-      position: 'top',      // 标签位置
-    },
-    data: productLineData['个人信贷产品'],
-  }
-];
-initOrgLineEcharts(xData, yData);
-initStripLineEcharts(xData);
-initProductLineEcharts(productLineData.DATADATE);
-initCustomerLineEcharts(customerData.DATADATE, customerData.RATE);
-initCustomerDistributeEcharts(customerDistributeData);
-initProductDistributeEcharts(customerDistributeDataCopy);
 /**
  * @author wzheng
  * @date 2025年5月29日09:45:37
@@ -591,7 +464,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
     title: {
       text: '客户数量分布',
       textStyle: {
-        color: '#5CDAEC', // 主标题颜色
+        color: 'white', // 主标题颜色
         fontSize: 20,     // 字体大小
         fontWeight: 'bold'
       },
@@ -611,7 +484,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
       axisLine: { show: false },
       axisLabel: { 
         fontWeight: "bold",
-        color: '#5CDAEC', // 主标题颜色
+        color: 'white', // 主标题颜色
         fontSize: 16,     // 字体大小
       },
     },
@@ -626,6 +499,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         itemStyle: { color: "#4A90E2" },
         label: {
           show: true,
+          color: 'white', // 主标题颜色
           position: "inside",
           formatter: function (params) {
             return params.value === 0 ? '' : '正收益 ' + params.value + '个';
@@ -642,6 +516,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '无收益 ' + params.value + '个';
           },
@@ -657,6 +532,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '负收益 ' + params.value + '个';
           },
@@ -673,6 +549,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '上升 ' + params.value + '个';
           },
@@ -688,6 +565,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '不变 ' + params.value + '个';
           },
@@ -703,6 +581,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '下降 ' + params.value + '个';
           },
@@ -718,6 +597,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '新增客户 ' + params.value + '个';
           },
@@ -734,6 +614,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '高于全行平均 ' + params.value + '个';
           },
@@ -749,6 +630,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '等于全行平均 ' + params.value + '个';
           },
@@ -764,6 +646,7 @@ function initCustomerDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '低于全行平均 ' + params.value + '个';
           },
@@ -787,7 +670,7 @@ function initProductDistributeEcharts(customerDistributeData) {
     title: {
       text: '产品数量分布',
       textStyle: {
-        color: '#5CDAEC', // 主标题颜色
+        color: 'white', // 主标题颜色
         fontSize: 20,     // 字体大小
         fontWeight: 'bold'
       },
@@ -807,7 +690,7 @@ function initProductDistributeEcharts(customerDistributeData) {
       axisLine: { show: false },
       axisLabel: { 
         fontWeight: "bold",
-        color: '#5CDAEC', // 主标题颜色
+        color: 'white', // 主标题颜色
         fontSize: 16,     // 字体大小
       },
     },
@@ -823,6 +706,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '正收益 ' + params.value + '个';
           },
@@ -838,6 +722,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '无收益 ' + params.value + '个';
           },
@@ -853,6 +738,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '负收益 ' + params.value + '个';
           },
@@ -869,6 +755,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '上升 ' + params.value + '个';
           },
@@ -884,6 +771,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '不变 ' + params.value + '个';
           },
@@ -899,6 +787,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '下降 ' + params.value + '个';
           },
@@ -915,6 +804,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '高于全行平均 ' + params.value + '个';
           },
@@ -930,6 +820,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '等于全行平均 ' + params.value + '个';
           },
@@ -945,6 +836,7 @@ function initProductDistributeEcharts(customerDistributeData) {
         label: {
           show: true,
           position: "inside",
+          color: 'white', // 主标题颜色
           formatter: function (params) {
             return params.value === 0 ? '' : '低于全行平均 ' + params.value + '个';
           },
@@ -954,3 +846,10 @@ function initProductDistributeEcharts(customerDistributeData) {
   };
   productTotalEcharts.setOption(productTotalOption, true);
 }
+
+initOrgLineEcharts(xData, yData);
+initStripLineEcharts(xData);
+initProductLineEcharts(productLineData.DATADATE);
+initCustomerLineEcharts(customerData.DATADATE, customerData.RATE);
+initCustomerDistributeEcharts(customerDistributeData);
+initProductDistributeEcharts(customerDistributeDataCopy);

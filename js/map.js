@@ -1,147 +1,4 @@
-/**
- * @author wzheng
- * @date 2025年5月29日09:38:10
- * @description 加载地图、地图数据
- * @param {Object} mapData - 参数描述
- */
-var mapData = [];
-var areaName = "北京市";
-var mapData2 = [];
-var areaCode = "北京市";
-let datas = {
-    orgdatas: [
-        {
-            orgid: "19",
-            orgname: "北京分行",
-            longitude: "116.358328",
-            latitude: "39.901647",
-            balance: 2140.05,
-            badbalance: 120.57,
-            balancerate: 1.35,
-            overduerate: 89.91,
-            overdueloanrate: 1.35,
-            belongarea: "110000",
-            value: [],
-            follow: 432.45,
-            bad: 278.92,
-            normalShow: "19876.34",
-            followShow: "432.45",
-            badShow: "278.92",
-            normalrate: 96.55,
-            followrate: 2.1,
-            badrate: 1.35,
-        },
-        {
-            orgid: "23",
-            orgname: "中关村分行",
-            longitude: "116.356848",
-            latitude: "39.939701",
-            balance: 15373.67,
-            badbalance: 283.15,
-            balancerate: 1.58,
-            overduerate: 251.95,
-            overdueloanrate: 1.58,
-            belongarea: "110000",
-            value: [],
-            follow: 378.65,
-            bad: 312.43,
-            normalShow: "20123.87",
-            followShow: "378.65",
-            badShow: "312.43",
-            normalrate: 96.68,
-            followrate: 1.82,
-            badrate: 1.5,
-        },
-        {
-            orgid: "25",
-            orgname: "城市副中心分行",
-            longitude: "116.69927",
-            latitude: "39.86954",
-            balance: 3477.75,
-            badbalance: 211.12,
-            balancerate: 1.2,
-            overduerate: 131.55,
-            overdueloanrate: 1.2,
-            belongarea: "110000",
-            value: [],
-            follow: 415.78,
-            bad: 265.34,
-            normalShow: "19945.23",
-            followShow: "415.78",
-            badShow: "265.34",
-            normalrate: 96.7,
-            followrate: 2.01,
-            badrate: 1.29,
-        },
-        {
-            orgid: "10001",
-            orgname: "总行_营业部",
-            longitude: "116.35969",
-            latitude: "39.937387",
-            balance: 3357.75,
-            badbalance: 281.12,
-            balancerate: 1.3,
-            overduerate: 161.55,
-            overdueloanrate: 1.3,
-            belongarea: "110000",
-            value: [],
-            follow: 445.92,
-            bad: 295.67,
-            normalShow: "20234.56",
-            followShow: "445.92",
-            badShow: "295.67",
-            normalrate: 96.45,
-            followrate: 2.13,
-            badrate: 1.42,
-        },
-    ],
-};
-for (let item of datas.orgdatas) {
-    mapData.push({
-        orgId: item.orgid,
-        bankName: item.orgname,
-        value: [item.longitude, item.latitude],
-        balance: item.balance,
-        badbalance: item.badbalance,
-        balancerate: item.balancerate,
-        overduerate: item.overduerate,
-        overdueloanrate: item.overdueloanrate,
-        belongarea: item.belongarea,
-        follow: item.follow,
-        bad: item.bad,
-        normalShow: item.normalShow,
-        followShow: item.followShow,
-        badShow: item.badShow,
-        normalrate: item.normalrate,
-        followrate: item.followrate,
-        badrate: item.badrate,
-    });
-    item.value = [];
-}
-for (let item of mapData) {
-    if (item.bankName == "北京分行") {
-        item.longitude = "116.358328";
-        item.latitude = "39.901647";
-        item.value = ["116.358328", "39.901647"];
-    } else if (item.bankName == "中关村分行") {
-        item.longitude = "116.356848";
-        item.latitude = "39.939701";
-        item.value = ["116.356848", "39.939701"];
-    } else if (item.bankName == "城市副中心分行") {
-        item.longitude = "116.69927";
-        item.latitude = "39.86954";
-        item.value = ["116.69927", "39.86954"];
-    } else if (item.bankName == "总行_营业部") {
-        item.longitude = "116.386221";
-        item.latitude = "39.937387";
-        item.value = ["116.386221", "39.937387"];
-    }
-}
-var mapData1 = JSON.stringify(mapData);
-mapData1 = JSON.parse(mapData1);
 var myChart = echarts.init(document.getElementById("mapDiv"));
-var currentLevel = "city"; // 当前层级
-var currentDistrictCode = ""; // 当前区县code
 /**
  * @author wzheng
  * @date 2025年5月29日09:39:38
@@ -149,9 +6,7 @@ var currentDistrictCode = ""; // 当前区县code
  * @param {Object} mapData - 参数描述
  */
 function initChart(mapData) {
-    debugger;
     let optionsMap = {};
-    var mapData1 = [];
     let mapImg = document.createElement("img");
     mapImg.src = "assets/images/screenfull/map_bg1.png";
     var geoName = areaName;
@@ -164,6 +19,7 @@ function initChart(mapData) {
         echarts.registerMap(areaName, geoJson);
         // 初始化地图
         if (areaName == "北京市") {
+            debugger
             const centerMap = {};
             let featuresArr = [];
             // 给地图颜色
@@ -680,13 +536,12 @@ function initChart(mapData) {
                                                             </div>
                                                             <div class="map-tooltip-content" style="display: flex;justify-content: space-between;padding: 10px 10px 12px 10px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
                                                                 <div style="margin-right: 12px;display: flex; flex-direction: column; align-items: flex-start;width: 120px;">
-                                                                    <div>贷款规模：${balance}亿元</div>
-                                                                    <div style="margin-left: 12px;">逾期率：${overduerate}%</div>
-                                                                    <div style="margin-left: 12px;">逾贷比：${overdueloanrate}%</div>
+                                                                    <div style="margin-left: 12px;">风险收益水平：${overduerate}%</div>
+                                                                    <div style="margin-left: 12px;">加权平均利率：${overduerate}%</div>
                                                                 </div>
                                                                 <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                                                    <div>不良贷款余额：${badbalance}亿元</div>
-                                                                    <div style="margin-left: 12px;">不良贷款率：${balancerate}%</div>
+                                                                    <div>中间业务收入类：${overdueloanrate}%</div>
+                                                                    <div style="margin-left: 12px;">风险成本率：${balancerate}%</div>
                                                                 </div>
                                                             </div>
                                                         </div>`;
@@ -700,13 +555,12 @@ function initChart(mapData) {
                                                             <div class="map-tooltip-content" style="padding: 12px 12px 8px 12px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
                                                                 <div style="color: #FF4F4F;font-family: PingFang SC;font-size: 20px;margin-bottom: 6px;">${data.type}</div>
                                                                 <div style="margin-right: 12px;display: flex;">
-                                                                    <div>冒烟客户：${data.cusSum}</div>
-                                                                    <div style="margin-left: 12px;">冒烟预警率：${data.smokeRate}%</div>
+                                                                    <div>风险收益水平：${data.overduerate}%</div>
+                                                                    <div style="margin-left: 12px;">加权平均利率：${data.overduerate}%</div>
                                                                 </div>
                                                                 <div style="display: flex;">
-                                                                    <div style="color:#F85F64;">红色：${data.redCusNum}</div>
-                                                                    <div style="color:#FFCF5F;margin-left: 12px;">黄色：${data.yellowCusNum}</div>
-                                                                    <div style="color:#3E9CFF;margin-left: 12px;">蓝色：${data.blueCusNum}</div>
+                                                                    <div style="color:#FFCF5F;margin-left: 12px;">中间业务收入类：${data.overdueloanrate}%</div>
+                                                                    <div style="color:#3E9CFF;margin-left: 12px;">风险成本率：${data.balancerate}%</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -734,13 +588,12 @@ initChart(mapData1);
  * @param {Object} item - 参数
  */
 myChart.on("click", function (item) {
-    debugger;
     if ((item.data && item.data.bankName) || (item.data && item.data.orgname)) {
         // this.mapClick.emit(item.data)
     } else {
         mapData2 = [];
         areaName = item.name;
-        areaCode = item.name;
+        areaCode = item.data.areaCode;
         for (let data of mapData1) {
             if (data.belongarea == item.data.areaCode) {
                 mapData2.push(data);
@@ -759,7 +612,7 @@ myChart.on("restore", (params) => {
 });
 function restore() {
     this.areaName = "北京市";
-    this.areaCode = "北京市";
+    this.areaCode = "110000";
     initChart(mapData1);
 }
 /**
