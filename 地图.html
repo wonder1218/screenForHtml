@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="echarts.min.js"></script>
+    <script src="jquery.js"></script>
+    
+</head>
+
+<body>
+    <div style="height: 600px;width: 600px;">
+
+    </div>
+    <script>
+        const mCharts = echarts.init(document.querySelector('div'));
+        const airData = [
+            {name:'四川',value: 84},
+            {name:'上海',value: 89},
+            {name:'广州',value: 76},
+            {name:'北京',value: 84},
+
+        ];
+        const scatterData = [{value: [117.283042,31.86119]}]
+        $.get('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json', (result) => {
+            echarts.registerMap('chinaMap', result);
+            const option = {
+                geo: {
+                    type: 'map',
+                    map: 'chinaMap',
+                    roam: true, // 开启鼠标光标移动缩放
+                    label: {
+                        show: true,
+                    },
+                    zoom: 1,
+                    // center://设置中心点
+                },
+                series: [
+                    {
+                        data: airData,
+                        geoIndex: 0, // 指定索引为0，即全局索引
+                        type: 'map'
+                    },
+                    {
+                        data: scatterData,
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo', // 使用坐标系统。
+                        rippleEffect: {
+                            scale: 10
+                        }
+                    }
+                ],
+                visualMap: {
+                    min: 0,
+                    max: 300,
+                    inRange: {
+                        color: ['white','red']
+                    },
+                    calculable: true, // 
+                }
+            };
+            mCharts.setOption(option) // 可以将option传递给 echarts 实例，然后在其中绘制图
+        });
+    </script>
+</body>
+
+</html>

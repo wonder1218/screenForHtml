@@ -1,0 +1,129 @@
+<!--
+ * @Author: wonder1218 zhengwen_man@163.com
+ * @Date: 2025-04-15 19:45:31
+ * @LastEditors: wonder1218 zhengwen_man@163.com
+ * @LastEditTime: 2025-04-17 09:10:14
+ * @FilePath: \H5-appc:\Users\zheng\Desktop\echarts.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>堆叠柱状图和折线图</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.3.3/echarts.min.js"></script>
+    <style>
+        #chart {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart" ></div>
+
+    <script>
+        // 初始化图表
+        const chartDom = document.getElementById('chart');
+        const myChart = echarts.init(chartDom);
+
+        // 图表配置
+        const option = {
+            title: {
+                text: 'XXXX--不良贷款余额变动趋势',
+                textStyle: {
+                    color: '#313335',
+                    fontSize: 14,
+                    textAlign: 'center',
+                    padding: [0, 0, 0, 14]
+                },
+                y: 'top',
+                x: 'center',
+            },
+            grid: {
+                left: '1%',
+                right: '1%',
+                bottom: '16%',
+                containLabel: true,
+                top: '18%'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['不良贷款余额'],
+                show: true,
+                itemGap: 32,
+                itemWidth: 10,
+                itemHeight: 8,
+                textStyle: {
+                    color: '#868686',
+                    fontSize: 10
+                },
+                x: 'center',
+                y: 'bottom'
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: true,
+                axisLabel: {
+                    interval: 0,
+                    rotate: 45,
+                    color: '#555555',
+                    fontSize: 10
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'solid'
+                    }
+                },
+                data: ['202112', '202009', '202006', '202003', '201912', '201909', '201906', '201903', '201812', '201809']
+            },
+            yAxis: [
+            {
+                type: 'value',
+                name: '单位/亿元',
+                nameTextStyle: {
+                    color: '#c0c4cc',
+                    fontSize: 10,
+                    padding: [0, 0, 0 ,14]
+                },
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'dashed'
+                    }
+                }
+            }
+            ],
+            series: [
+                {
+                    name: '不良贷款余额',
+                    type: 'line',
+                    color: '#ffa41b',
+                    data: ['0.04', '0.03', '0.02', '0.01', '0.00', '0.01', '0.02', '0.03', '0.04', '0.05'],
+                    yAxisIndex: 0 // 使用同一个 y 轴
+                }
+            ]
+        };
+
+        // 使用指定的配置项和数据显示图表
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

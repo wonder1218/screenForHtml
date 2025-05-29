@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="echarts.min.js"></script>
+</head>
+<body>
+  <div id="chart"></div>
+  <script>
+// 初始化图表实例
+const chart = echarts.init(document.getElementById('chart'));
+
+// 设置图表的配置项和数据
+const option = {
+  xAxis: {
+    type: 'category', // 设置x轴类型为类目轴
+    data: ['A', 'B', 'C', 'D'], // 设置x轴刻度的数据
+    axisTick: {
+      show: false, // 隐藏x轴刻度线
+    },
+    axisLine: {
+      show: false, // 隐藏x轴轴线
+    },
+    axisLabel: {
+      show: true, // 显示x轴标签
+    },
+  },
+  yAxis: {
+    show: false, // 隐藏y轴
+  },
+  series: [
+    {
+      type: 'bar',
+      barWidth: '60%', // 设置柱状图的宽度
+      itemStyle: {
+        color: '#3398DB', // 设置柱状图的颜色
+      },
+      data: [100, 200, 150, 300], // 设置柱状图的数据，可以根据实际需求修改
+    },
+  ],
+};
+// 使用配置项和数据绘制图表
+chart.setOption(option);
+  </script>
+</body>
+</html>

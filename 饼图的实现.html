@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.2/echarts.common.js"></script>
+</head>
+
+<body>
+    <div style="height: 600px;width: 400px;">
+
+    </div>
+    <script>
+        const mCharts = echarts.init(document.querySelector('div'));
+        const pieData = [
+            { name: '淘宝', value: 11231 },
+            { name: '京东', value: 22637 },
+            { name: '唯品会', value: 8989 },
+            { name: '一号店', value: 6123 },
+            { name: '聚美优品', value: 6700 },
+        ];
+        const option = {
+            series: [
+                {
+                    type: 'pie',
+                    data: pieData,
+                    label: {
+                        formatter: function (arg) {
+                            return arg.name + '平台' + arg.value + '元\n' + arg.percent + '%'
+                        }
+                    },
+                    // radius: ['50%','75%'],
+                    roseType: 'radius', // 南丁格尔图
+                    selectedMode: 'single',//设置单个选中的效果，能够偏离原点 multiple：多个
+                    selectedOffset: 30,//选中位置偏移，默认为20，可选值为x轴或y轴偏移值。 
+                }
+            ]
+        }; // 
+        mCharts.setOption(option) // 可以将option传递给 echarts 实例，然后在其中绘制图
+        window.onresize = function () {
+            mCharts.resize();
+        }
+    </script>
+</body>
+
+</html>

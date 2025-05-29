@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="echarts.min.js"></script>
+  <script src="jquery.js"></script>
+</head>
+
+<body>
+  <div style="height: 600px; width: 600px"></div>
+  <script>
+    const mCharts = echarts.init(document.querySelector("div"));
+    const dataMax = [
+      { name: "易用性", max: 100 },
+      { name: "功能", max: 100 },
+      { name: "拍照", max: 100 },
+      { name: "跑分", max: 100 },
+      { name: "续航", max: 100 },
+    ];
+    var option = {
+      title: { text: '横向堆叠条形图' },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },  // 引用[1]的坐标轴触发方式
+      legend: { data: ['系列1', '系列2', '总数'] },
+      yAxis: { type: 'category', data: ['A', 'B', 'C'] },
+      xAxis: { type: 'value' },
+      series: [
+        {
+          name: '系列1',
+          type: 'bar',
+          stack: '总量',
+          label: { show: true },
+          data: [120, 132, 101]
+        },
+        {
+          name: '系列2',
+          type: 'bar',
+          stack: '总量',
+          label: { show: true },
+          data: [220, 182, 191]
+        },
+        {   // 顶部总数显示层
+          name: '总数',
+          type: 'bar',
+          stack: '总量',
+          itemStyle: { color: 'transparent' },
+          label: {
+            show: true,
+            position: 'right',
+            color: 'black',
+            formatter: '{c}'
+          },
+          data: [340, 314, 292]  // 预计算总和
+        }
+      ]
+    };
+    mCharts.setOption(option); // 可以将option传递给 echarts 实例，然后在其中绘制图
+  </script>
+</body>
+
+</html>

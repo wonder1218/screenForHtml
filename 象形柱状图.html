@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="echarts.min.js"></script>
+    <script src="jquery.js"></script>
+
+</head>
+
+<body>
+    <div style="height: 600px;width: 600px;">
+
+    </div>
+    <script>
+        const mCharts = echarts.init(document.querySelector('div'));
+        const airData = [
+            { name: '四川', value: 84 },
+            { name: '上海', value: 89 },
+            { name: '广州', value: 76 },
+            { name: '北京', value: 84 },
+
+        ];
+        // 设置图表的配置项和数据
+        const option = {
+            xAxis: {
+                type: 'category', // 设置x轴类型为类目轴
+                data: ['A', 'B', 'C', 'D'], // 设置x轴刻度的数据
+                axisTick: {
+                    show: false, // 隐藏x轴刻度线
+                },
+                axisLine: {
+                    show: false, // 隐藏x轴轴线
+                },
+                axisLabel: {
+                    show: true, // 显示x轴标签
+                },
+            },
+            yAxis: {
+                show: false, // 隐藏y轴
+            },
+            series: [
+                {
+                    type: 'bar',
+                    barWidth: '60%', // 设置柱状图的宽度
+                    itemStyle: {
+                        color: '#3398DB', // 设置柱状图的颜色
+                    },
+                    data: [100, 200, 150, 300], // 设置柱状图的数据，可以根据实际需求修改
+                },
+            ],
+        };
+        mCharts.setOption(option) // 可以将option传递给 echarts 实例，然后在其中绘制图
+    </script>
+</body>
+
+</html>

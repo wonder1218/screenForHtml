@@ -1,0 +1,323 @@
+<!--
+ * @Author: wonder1218 zhengwen_man@163.com
+ * @Date: 2025-05-26 17:28:14
+ * @LastEditors: wonder1218 zhengwen_man@163.com
+ * @LastEditTime: 2025-05-29 16:37:57
+ * @FilePath: \ECharts\大屏示例.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>大屏示例</title>
+  <!-- 引入 ECharts -->
+  <script src="js/echarts.min.js"></script>
+  <script src="jquery.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/index.css" />
+  <!-- <script src="/js/index.js"></script> -->
+  <script src="/js/global.js"></script>
+  <!-- 引入样式 -->
+  <!-- <link rel="stylesheet" href="/css/elementIndex.css"> -->
+  <style>
+    #map-container {
+      width: 100%;
+      height: 600px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="contain">
+    <!-- 顶部 -->
+    <div class="top">
+      <div class="logo-img">
+        <p style="font-size: 30px">XXXXlogo</p>
+      </div>
+      <div class="title">风险收益水平管理驾驶舱</div>
+      <img class="close-img" src="assets/images/screenfull/close.png" (click)="backRqp()" />
+    </div>
+    <!-- 内容 -->
+    <div class="content">
+      <!-- 左边 -->
+      <div class="left">
+        <!-- 实时冒烟监测 -->
+        <div class="customer-monitor">
+          <div class="subtitle">
+            <div class="subtitle-text pointer">条线纬度</div>
+            <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
+          </div>
+          <div class="button-wrap">
+            <select onchange="handleChange(this)">
+              <option value="全部" label="全部">全部</option>
+              <option value="公司金融服务部" label="公司金融服务部">公司金融服务部</option>
+              <option value="普惠及乡村振兴金融服务部" label="普惠及乡村振兴金融服务部">普惠及乡村振兴金融服务部</option>
+              <option value="零售羚信货部" label="零售羚信货部">零售羚信货部</option>
+              <option value="合计" label="合计">合计</option>
+            </select>
+          </div>
+          <div class="customer">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pie-3d" id="stripLineEcharts"></div>
+        <div class="smoke-trend">
+          <div class="subtitle">
+            <div class="subtitle-text">机构纬度汇总</div>
+            <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
+          </div>
+          <div class="bank-range">
+            <select onchange="handleProductChange(this)">
+              <option value="全部" label="全部">全部</option>
+              <!-- <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
+              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option> -->
+            </select>
+          </div>
+          <div class="card-wrap">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="trend-chart" id="orgLatTotalEcharts"></div>
+          <img class="smoke-trend-line" src="assets/images/screenfull/mapLine_bottom.png" />
+        </div>
+      </div>
+      <div class="middle">
+        <div class="map">
+          <img class="map-bg" src="assets/images/screenfull/map_bg.png" />
+          <img class="map-round-bg" src="assets/images/screenfull/map_bg_round.png" />
+          <img class="map-top-bg" src="assets/images/screenfull/maptop_bg.png" />
+          <img class="mapline-top" src="assets/images/screenfull/mapLine_top.png" />
+          <img class="mapline-bottom" src="assets/images/screenfull/mapLine_bottom.png" />
+          <img class="mapline-left" src="assets/images/screenfull/mapLine_left.png" />
+          <img class="mapline-right" src="assets/images/screenfull/mapLine_right.png" />
+          <div id="mapDiv" style="height: 600px; width: 800px"></div>
+          <!-- <div style="height: 600px;width: 800px;" id="mapDiv"></div> -->
+        </div>
+        <div class="wordcloud">
+          <!-- <div class="wordcloud-title">机构纬度汇总</div> -->
+           <!-- <div style="display: flex;"> -->
+            <div class="wordcloud-content" style="height: 230px; width: 760px" id="productDistribute"></div>
+            <div class="wordcloud-content" style="height: 230px; width: 760px" id="customerDistribute"></div>
+           <!-- </div> -->
+          <img class="wordcloud-line" src="assets/images/screenfull/mapLine_bottom.png" />
+        </div>
+      </div>
+      <!-- 右边 -->
+      <div class="right">
+        <div class="block1">
+          <div class="subtitle1">
+            <div class="subtitle-text1">产品维度</div>
+            <img class="subtitle-img1" src="assets/images/screenfull/risk_title_bg.png" />
+          </div>
+          <div class="bank-range">
+            <select onchange="handleProductChange(this)">
+              <option value="全部" label="全部">全部</option>
+              <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
+              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option>
+            </select>
+            <select onchange="handleProductChange(this)">
+              <option value="全部" label="全部">全部</option>
+              <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
+              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option>
+            </select>
+          </div>
+          <div class="card-wrap">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="loantrend" id="productLatEcharts"></div>
+        </div>
+        <div class="block3">
+          <div class="subtitle1">
+            <div class="subtitle-text1">客户维度</div>
+            <img class="subtitle-img1" src="assets/images/screenfull/risk_title_bg.png" />
+          </div>
+          <img class="block3-line" src="assets/images/screenfull/mapLine_bottom.png" />
+          <div class="bank-range">
+            <select onchange="handleCustomerChange(this)">
+              <option value="全部" label="全部">全部</option>
+              <!-- <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
+              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option> -->
+            </select>
+            <select onchange="handleCustomerChange(this)">
+              <option value="全部" label="全部">全部</option>
+              <!-- <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
+              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option> -->
+            </select>
+          </div>
+          <div class="card-wrap">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="loantrend" id="customerLatEcharts"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="js/map.js"></script>
+  <script src="js/lineEcharts.js"></script>
+</body>
+
+</html>

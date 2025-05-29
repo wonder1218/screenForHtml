@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="echarts.min.js"></script>
+    <script src="itcast.js"></script>
+</head>
+
+<body>
+    <div style="height: 600px;width: 600px;">
+
+    </div>
+    <script>
+        var dataTest = [
+            [
+                {
+                    "serviceaddrName": "内勤",
+                    children:
+                        [
+                            {
+                                "payClassName": "社区售水",
+                                "count": 161,
+                                "charge": 38076.8
+                            },
+                            {
+                                "payClassName": "用户自主交费",
+                                "count": 63706,
+                                "charge": 6354611.06
+                            },
+                            {
+                                "payClassName": "第三方代理交费",
+                                "count": 125,
+                                "charge": 6090.810000000001
+                            },
+                            {
+                                "payClassName": "营业厅柜台交费",
+                                "count": 503,
+                                "charge": 21440782.71
+                            },
+                            {
+                                "payClassName": "第三方业务自助机交费",
+                                "count": 16,
+                                "charge": 8297.18
+                            },
+                            {
+                                "payClassName": "营业厅柜台购水",
+                                "count": 1,
+                                "charge": 29.4
+                            },
+                            {
+                                "payClassName": "第三方业务自助机购水",
+                                "count": 44,
+                                "charge": 9807.7
+                            },
+                            {
+                                "payClassName": "小额支付扣费",
+                                "count": 395,
+                                "charge": 3237684.5
+                            },
+                            {
+                                "payClassName": "银行代收扣费",
+                                "count": 15193,
+                                "charge": 630342
+                            }
+                        ]
+                }
+            ],
+            [
+                {
+                    "serviceaddrName": "烟台道营业厅",
+                    children: [
+                        {
+                            "payClassName": "营业厅其它交费",
+                            "count": 49,
+                            "charge": 5607.900000000001
+                        },
+                        {
+                            "payClassName": "营业厅柜台交费",
+                            "count": 1486,
+                            "charge": 657667.5
+                        },
+                        {
+                            "payClassName": "营业厅柜台购水",
+                            "count": 5315,
+                            "charge": 1213229.6
+                        },
+                        {
+                            "payClassName": "营业厅柜台购水",
+                            "count": 2266,
+                            "charge": 576906.1000000001
+                        }
+                    ]
+
+                }
+            ],
+            [
+                {
+                    "serviceaddrName": "福建路营业厅",
+                    children: [
+                        {
+                            "payClassName": "营业厅柜台交费",
+                            "count": 2497,
+                            "charge": 5263979.7299999995
+                        },
+                        {
+                            "payClassName": "营业厅其它交费",
+                            "count": 183,
+                            "charge": 124689.78000000001
+                        },
+                        {
+                            "payClassName": "第三方业务自助机购水",
+                            "count": 2,
+                            "charge": 343
+                        }
+                    ]
+
+                },
+            ],
+            [
+                {
+                    "serviceaddrName": "渤油新村营业厅",
+                    children: [
+                        {
+                            "payClassName": "营业厅柜台交费",
+                            "count": 128,
+                            "charge": 36226.1
+                        },
+                        {
+                            "payClassName": "营业厅柜台购水",
+                            "count": 36,
+                            "charge": 10360.3
+                        },
+                        {
+                            "payClassName": "营业厅其它交费",
+                            "count": 1,
+                            "charge": 916.3
+                        }
+                    ]
+
+                },
+            ],
+            [
+                {
+                    "serviceaddrName": "西部新城营业厅",
+                    children: [
+                        {
+                            "payClassName": "营业厅柜台交费",
+                            "count": 337,
+                            "charge": 98831.9
+                        },
+                        {
+                            "payClassName": "营业厅柜台购水",
+                            "count": 744,
+                            "charge": 169168.9
+                        },
+                        {
+                            "payClassName": "营业厅其它交费",
+                            "count": 7,
+                            "charge": 221.7
+                        }
+                    ]
+
+                },
+            ]
+        ];
+        console.log(dataTest);
+        const xdata = [];
+        const countCount = [];
+        for (let item of dataTest) {
+            for (let i of item) {
+                xdata.push(i.serviceaddrName);
+                for(let j of i.children){
+                    countCount.push(j.count);
+                }
+            }
+        }
+        console.log(xdata,countCount);
+        const mCharts = echarts.init(document.querySelector('div'), 'itcast');
+        let option = {
+            title: {
+                text: "线下业务缴费金额和笔数统计(按 营业网点 和 缴费方式)",
+                // textAlign: "center",
+            },
+            tooltip: {
+                trigger: "axis",
+                axisPointer: {
+                    // Use axis to trigger tooltip
+                    type: "shadow" // 'shadow' as default; can also be 'line' or 'shadow'
+                }
+            },
+            color: ["#118DFD", "#17278A", "#E96737", "#680078", "#D83EA0"],
+            legend: {
+                x: "right",
+                align: "left",
+                width: 300,
+                formatter: ["{a|{name}}"].join("\n"),
+                textStyle: {
+                    rich: {
+                        a: {
+                            width: 45,
+                            fontSize: 12,
+                            lineHeight: 12
+                        }
+                    }
+                }
+            },
+            grid: {
+                left: "3%",
+                right: "4%",
+                bottom: "3%",
+                containLabel: true
+            },
+            xAxis: {
+                name: "营业网点",
+                type: "category",
+                data: xdata,
+                axisLabel: { interval: 0, rotate: 25 },
+                nameGap: 50, // x轴name与横坐标轴线的间距
+                nameLocation: "middle" // x轴name处于x轴的什么位置
+            },
+            yAxis: [
+                {
+                    type: "value",
+                    name: "金额",
+                    axisLabel: {
+                        formatter: "{value} 百万"
+                    },
+                    nameRotate: 90, // y轴name旋转90度 使其垂直
+                    nameGap: 50, // y轴name与横纵坐标轴线的间距
+                    nameLocation: "middle" // y轴name处于y轴的什么位置
+                },
+                {
+                    type: "value",
+                    name: "笔数的总和",
+                    axisLabel: {
+                        formatter: "{value} 笔"
+                    },
+                    nameRotate: 90, // y轴name旋转90度 使其垂直
+                    nameGap: 50, // y轴name与横纵坐标轴线的间距
+                    nameLocation: "middle" // y轴name处于y轴的什么位置
+                }
+            ],
+            series: [
+                {
+                    name: "刷卡",
+                    type: "bar",
+                    stack: "total",
+                    label: {
+                        show: true
+                    },
+                    emphasis: {
+                        focus: "series"
+                    },
+                    data: [320, 302, 301, 334, 390, 330, 320]
+                },
+                {
+                    name: "现金",
+                    type: "bar",
+                    stack: "total",
+                    label: {
+                        show: true
+                    },
+                    emphasis: {
+                        focus: "series"
+                    },
+                    data: [120, 132, 101, 134, 90, 230, 210]
+                },
+                {
+                    name: "支付扫码",
+                    type: "bar",
+                    stack: "total",
+                    label: {
+                        show: true
+                    },
+                    emphasis: {
+                        focus: "series"
+                    },
+                    data: [220, 182, 191, 234, 290, 330, 310]
+                },
+                {
+                    name: "支票",
+                    type: "bar",
+                    stack: "total",
+                    label: {
+                        show: true
+                    },
+                    emphasis: {
+                        focus: "series"
+                    },
+                    data: [150, 212, 201, 154, 190, 330, 410]
+                },
+                {
+                    name: "笔数的总和",
+                    type: "line",
+                    yAxisIndex: 1,
+                    label: {
+                        show: true
+                    },
+                    emphasis: {
+                        focus: "series"
+                    },
+                    data: countCount
+                }
+            ]
+        };
+        mCharts.setOption(option, true);
+    </script>
+</body>
+
+</html>

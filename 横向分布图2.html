@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="echarts.min.js"></script>
+    <script src="jquery.js"></script>
+  </head>
+
+  <body>
+    <div style="height: 600px; width: 600px"></div>
+    <script>
+      const mCharts = echarts.init(document.querySelector("div"));
+      const dataMax = [
+        { name: "易用性", max: 100 },
+        { name: "功能", max: 100 },
+        { name: "拍照", max: 100 },
+        { name: "跑分", max: 100 },
+        { name: "续航", max: 100 },
+      ];
+      var option = {
+        tooltip: { show: true },
+        grid: { left: 200, right: 20, top: 60, bottom: 20 },
+        legend: { show: false },
+        xAxis: { type: "value", show: false },
+        yAxis: {
+          type: "category",
+          data: [
+            "正负收益情况",
+            "风险收益水平较年初变动情况",
+            "风险收益水平分布情况",
+          ],
+          axisTick: { show: false },
+          axisLine: { show: false },
+          axisLabel: { fontWeight: "bold" },
+        },
+        series: [
+          // 第一行堆叠
+          {
+            name: "正收益",
+            type: "bar",
+            stack: "row1",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [56, 67, 56],
+            itemStyle: { color: "#4A90E2" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "正收益 {c}个",
+            },
+          },
+          {
+            name: "无收益",
+            type: "bar",
+            stack: "row1",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [26, 34, 45],
+            itemStyle: { color: "#F5A623" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "无收益 {c}个",
+            },
+          },
+          {
+            name: "负收益",
+            type: "bar",
+            stack: "row1",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [18, 13, 10],
+            itemStyle: { color: "#F8E71C" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "负收益 {c}个",
+            },
+          },
+          // 第二行堆叠
+          {
+            name: "上升",
+            type: "bar",
+            stack: "row2",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [34, 30, 56],
+            itemStyle: { color: "#4A90E2" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "上升 {c}个",
+            },
+          },
+          {
+            name: "不变",
+            type: "bar",
+            stack: "row2",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [78, 50, 89],
+            itemStyle: { color: "#F5A623" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "不变 {c}个",
+            },
+          },
+          {
+            name: "下降",
+            type: "bar",
+            stack: "row2",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [56, 20, 34],
+            itemStyle: { color: "#F8E71C" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "下降 {c}个",
+            },
+          },
+          // 第三行堆叠
+          {
+            name: "高于全行平均",
+            type: "bar",
+            stack: "row3",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [23, 34, 40],
+            itemStyle: { color: "#4A90E2" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "高于全行平均 {c}个",
+            },
+          },
+          {
+            name: "等于全行平均",
+            type: "bar",
+            stack: "row3",
+            barWidth: 50,
+            data: [56, 67, 20],
+            itemStyle: { color: "#F5A623" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "等于全行平均 {c}个",
+            },
+          },
+          {
+            name: "低于全行平均",
+            type: "bar",
+            stack: "row3",
+            barCategoryGap: '10%',
+            barWidth: 50,
+            data: [56, 67, 40],
+            itemStyle: { color: "#F8E71C" },
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "低于全行平均 {c}个",
+            },
+          },
+        ],
+      };
+      mCharts.setOption(option); // 可以将option传递给 echarts 实例，然后在其中绘制图
+    </script>
+  </body>
+</html>

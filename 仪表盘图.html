@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="echarts.min.js"></script>
+    <script src="jquery.js"></script>
+
+</head>
+
+<body>
+    <div style="height: 600px;width: 600px;">
+
+    </div>
+    <script>
+        const mCharts = echarts.init(document.querySelector('div'));
+        const dataMax = [
+            { name: '易用性', max: 100 },
+            { name: '功能', max: 100 },
+            { name: '拍照', max: 100 },
+            { name: '跑分', max: 100 },
+            { name: '续航', max: 100 },
+        ];
+        var option = {
+            series: {
+                type: 'gauge', // 指定为仪器仪器主页面的gauge模式
+                data: [
+                    {
+                        value: 97,
+                        itemStyle: {
+                            color: 'pink'
+                        }
+                    },
+                    {
+                        value: 80,
+                        itemStyle: {
+                            color: 'green'
+                        }
+                    }
+                ],
+                min: 50,
+            }
+        }
+        mCharts.setOption(option) // 可以将option传递给 echarts 实例，然后在其中绘制图
+    </script>
+</body>
+
+</html>

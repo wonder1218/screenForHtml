@@ -1,0 +1,173 @@
+<!--
+ * @Author: wonder1218 zhengwen_man@163.com
+ * @Date: 2025-04-15 19:45:31
+ * @LastEditors: wonder1218 zhengwen_man@163.com
+ * @LastEditTime: 2025-04-16 17:51:45
+ * @FilePath: \H5-appc:\Users\zheng\Desktop\echarts.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>堆叠柱状图和折线图</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.3.3/echarts.min.js"></script>
+    <style>
+        #chart {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart"></div>
+
+    <script>
+        // 初始化图表
+        const chartDom = document.getElementById('chart');
+        const myChart = echarts.init(chartDom);
+
+        // 图表配置
+        const option = {
+            title: {
+                text: '行业不良贷款余额排名',
+                textStyle: {
+                    color: '#313335',
+                    fontSize: 14,
+                    textAlign: 'center',
+                    padding: [0, 0, 0, 14]
+                },
+                y: 'top',
+                x: 'center',
+            },
+            grid: {
+                left: '1%',
+                right: '1%',
+                bottom: '16%',
+                containLabel: true,
+                top: '18%'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['不良贷款余额', '不良贷款余额较年初变化率'],
+                show: true,
+                itemGap: 32,
+                itemWidth: 10,
+                itemHeight: 8,
+                textStyle: {
+                    color: '#868686',
+                    fontSize: 10
+                },
+                x: 'center',
+                y: 'bottom'
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: true,
+                axisLabel: {
+                    interval: 0,
+                    rotate: 45,
+                    color: '#555555',
+                    fontSize: 10
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'solid'
+                    }
+                },
+                data: ['房地产业', '交通运输、仓储和邮政业', '租赁和商务服务业', '水利、环境和娱乐业', '文化、体育和娱乐业', '制造业', '批发和零售业', '建筑业', '科学研究和技术服务业', '信息传输、软件和信息技术服务业', '采矿业', '农、林、牧、渔业']
+            },
+            yAxis: [
+            {
+                type: 'value',
+                name: '单位：亿元',
+                nameTextStyle: {
+                    color: '#c0c4cc',
+                    fontSize: 10,
+                    padding: [0, 0, 0 ,14]
+                },
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'dashed'
+                    }
+                }
+            },
+            {
+                type: 'value',
+                name: '单位/%',
+                nameTextStyle: {
+                    color: '#868686',
+                    fontSize: 10,
+                },
+                axisLabel: {
+                    show: true,
+                    interval: 'auto',
+                    formatter: function (value) {
+                        return value.toFixed(2) + '%';
+                    },
+                    textStyle: {
+                        color: '#c0c4cc',
+                    }
+                },
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'dashed'
+                    }
+                }
+            },
+            ],
+            series: [
+                {
+                    name: '不良贷款余额',
+                    type: 'bar',
+                    color: '#0052d9',
+                    barWidth: 20,
+                    yAxisIndex: 0, // 使用第一个 y 轴
+                    stack: '总量',
+                    data: ['412.00', '400.00', '300.00', '200.00', '154.00', '110.00', '100.00', '100.42', '23.00', '22.00', '21.00', '20.00', '19.00', '18.00', '17.00'],
+                    emphasis: {
+                        focus: 'series'
+                    }
+                },
+                {
+                    name: '不良贷款余额较年初变化率',
+                    type: 'line',
+                    color: '#2cd8c5',
+                    data: ['22.97', '13.34', '2.20', '3.44', '33.37', '1.09', '1.51', '2.14', '2.83', '2.96', '3.98', '0.34', '2.96', '3.98', '0.34'],
+                    yAxisIndex: 1 // 使用同一个 y 轴
+                }
+            ]
+        };
+
+        // 使用指定的配置项和数据显示图表
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

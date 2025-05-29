@@ -1,0 +1,189 @@
+<!--
+ * @Author: wonder1218 zhengwen_man@163.com
+ * @Date: 2025-04-15 19:45:31
+ * @LastEditors: wonder1218 zhengwen_man@163.com
+ * @LastEditTime: 2025-04-16 18:20:14
+ * @FilePath: \H5-appc:\Users\zheng\Desktop\echarts.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>堆叠柱状图和折线图</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.3.3/echarts.min.js"></script>
+    <style>
+        #chart {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart" ></div>
+
+    <script>
+        // 初始化图表
+        const chartDom = document.getElementById('chart');
+        const myChart = echarts.init(chartDom);
+
+        // 图表配置
+        const option = {
+            title: {
+                text: ''
+            },
+            grid: {
+                left: '1%',
+                right: '1%',
+                bottom: '16%',
+                containLabel: true,
+                top: '18%'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['红色触警客户数', '黄色触警客户数', '蓝色触警客户数', '触警客户数占比(%)'],
+                show: true,
+                itemGap: 32,
+                itemWidth: 10,
+                itemHeight: 8,
+                textStyle: {
+                    color: '#868686',
+                    fontSize: 10
+                },
+                x: 'center',
+                y: 'bottom'
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: true,
+                axisLabel: {
+                    interval: 0,
+                    rotate: 45,
+                    color: '#555555',
+                    fontSize: 10
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'solid'
+                    }
+                },
+                data: ['20240801', '20250320']
+            },
+            yAxis: [
+            {
+                type: 'value',
+                name: '单位：个',
+                nameTextStyle: {
+                    color: '#c0c4cc',
+                    fontSize: 10,
+                    padding: [0, 0, 0 ,14]
+                },
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'dashed'
+                    }
+                }
+            },
+            {
+                type: 'value',
+                name: '单位/%',
+                nameTextStyle: {
+                    color: '#868686',
+                    fontSize: 10,
+                },
+                axisLabel: {
+                    show: true,
+                    interval: 'auto',
+                    formatter: function (value) {
+                        return value.toFixed(2) + '%';
+                    },
+                    textStyle: {
+                        color: '#c0c4cc',
+                    }
+                },
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#cccccc',
+                        width: 0.5,
+                        type: 'dashed'
+                    }
+                }
+            },
+            ],
+            series: [
+                {
+                    name: '红色触警客户数',
+                    type: 'bar',
+                    color: '#fe7261',
+                    barWidth: 20,
+                    yAxisIndex: 0, // 使用第一个 y 轴
+                    stack: '总量',
+                    data: ['2468', '20862'],
+                    emphasis: {
+                        focus: 'series'
+                    }
+                },
+                {
+                    name: '黄色触警客户数',
+                    type: 'bar',
+                    color: '#ffa41b',
+                    stack: '总量',
+                    barWidth: 20,
+                    yAxisIndex: 0, // 使用第一个 y 轴
+                    data: ['25171', '15944'],
+                    emphasis: {
+                        focus: 'series'
+                    }
+                },
+                {
+                    name: '蓝色触警客户数',
+                    type: 'bar',
+                    color: '#0052d9',
+                    stack: '总量',
+                    barWidth: 20,
+                    yAxisIndex: 0, // 使用第一个 y 轴
+                    data: ['4852', '4189'],
+                    emphasis: {
+                        focus: 'series'
+                    }
+                },
+                {
+                    name: '触警客户数占比(%)',
+                    type: 'line',
+                    color: '#2cd8c5',
+                    data: ['61.76', '71.54'],
+                    yAxisIndex: 1 // 使用同一个 y 轴
+                }
+            ]
+        };
+
+        // 使用指定的配置项和数据显示图表
+        myChart.setOption(option);
+    </script>
+</body>
+</html>
