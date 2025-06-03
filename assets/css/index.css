@@ -363,10 +363,21 @@
   position: absolute;
   top: -5px;
 }
-.bank-range select{
-  background: #040711;
-  color: #31fbfb;
-  height: 100%;
+/* Use ::v-deep for Vue scoped CSS, or remove if not using scoped styles */
+.el-input__inner {
+  height: 40px !important;
+  line-height: 40px !important;
+  background: #040711 !important;
+  color: #31fbfb !important;
+}
+.el-input {
+  right: 25px !important;
+}
+.el-popper {
+  background: #040711 !important;
+}
+.el-select-dropdown__item {
+  color: #31fbfb !important;
 }
 .bank-range {
   display: flex;

@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-05-29 18:19:19
+ * @LastEditTime: 2025-06-03 10:43:12
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,10 +16,11 @@
   <script src="assets/js/echarts.min.js"></script>
   <script src="assets/js/jquery.js"></script>
   <link rel="stylesheet" type="text/css" href="assets/css/index.css" />
-  <!-- <script src="/js/index.js"></script> -->
-  <script src="assets/js/global.js"></script>
+  <script src="assets/js/vue.js"></script>
+  <script src="assets/js/elementIndex.js"></script>
+  <!-- <script src="assets/js/global.js"></script> -->
   <!-- 引入样式 -->
-  <!-- <link rel="stylesheet" href="/css/elementIndex.css"> -->
+  <link rel="stylesheet" href="assets/css/elementIndex.css">
   <style>
     #map-container {
       width: 100%;
@@ -29,14 +30,14 @@
 </head>
 
 <body>
-  <div class="contain">
+  <div class="contain" id="app">
     <!-- 顶部 -->
     <div class="top">
       <div class="logo-img">
         <p style="font-size: 30px">XXXXlogo</p>
       </div>
       <div class="title">风险收益水平管理驾驶舱</div>
-      <img class="close-img" src="assets/images/screenfull/close.png" (click)="backRqp()" />
+      <img class="close-img" src="assets/images/screenfull/close.png" />
     </div>
     <!-- 内容 -->
     <div class="content">
@@ -49,13 +50,14 @@
             <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
           </div>
           <div class="button-wrap">
-            <select onchange="handleChange(this)">
-              <option value="全部" label="全部">全部</option>
-              <option value="公司金融服务部" label="公司金融服务部">公司金融服务部</option>
-              <option value="普惠及乡村振兴金融服务部" label="普惠及乡村振兴金融服务部">普惠及乡村振兴金融服务部</option>
-              <option value="零售羚信货部" label="零售羚信货部">零售羚信货部</option>
-              <option value="合计" label="合计">合计</option>
-            </select>
+            <el-select v-model="valueLine" placeholder="请选择" @change="handleLineChange">
+              <el-option
+                v-for="item in optionsLine"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </div>
           <div class="customer">
             <div class="card-wrap">
@@ -109,11 +111,14 @@
             <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
           </div>
           <div class="bank-range">
-            <select onchange="handleProductChange(this)">
-              <option value="全部" label="全部">全部</option>
-              <!-- <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
-              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option> -->
-            </select>
+            <el-select v-model="valueOrg" placeholder="请选择" @change="handleOrgChange">
+              <el-option
+                v-for="item in optionsOrg"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </div>
           <div class="card-wrap">
             <div class="card-wrap">
@@ -192,16 +197,22 @@
             <img class="subtitle-img1" src="assets/images/screenfull/risk_title_bg.png" />
           </div>
           <div class="bank-range">
-            <select onchange="handleProductChange(this)">
-              <option value="全部" label="全部">全部</option>
-              <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
-              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option>
-            </select>
-            <select onchange="handleProductChange(this)">
-              <option value="全部" label="全部">全部</option>
-              <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
-              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option>
-            </select>
+            <el-select v-model="valueProduct" placeholder="请选择" @change="handleProductChange">
+              <el-option
+                v-for="item in optionsProduct"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            <el-select v-model="valueProduct" placeholder="请选择" @change="handleProductChange">
+              <el-option
+                v-for="item in optionsProduct"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </div>
           <div class="card-wrap">
             <div class="card-wrap">
@@ -256,16 +267,22 @@
           </div>
           <img class="block3-line" src="assets/images/screenfull/mapLine_bottom.png" />
           <div class="bank-range">
-            <select onchange="handleCustomerChange(this)">
-              <option value="全部" label="全部">全部</option>
-              <!-- <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
-              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option> -->
-            </select>
-            <select onchange="handleCustomerChange(this)">
-              <option value="全部" label="全部">全部</option>
-              <!-- <option value="对公信贷产品" label="对公信贷产品">对公信贷产品</option>
-              <option value="个人信贷产品" label="个人信贷产品">个人信贷产品</option> -->
-            </select>
+            <el-select v-model="valuePerson" placeholder="请选择" @change="handleProductChange">
+              <el-option
+                v-for="item in optionsPerson"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            <el-select v-model="valuePerson" placeholder="请选择" @change="handleCustomerChange">
+              <el-option
+                v-for="item in optionsPerson"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </div>
           <div class="card-wrap">
             <div class="card-wrap">
@@ -316,8 +333,9 @@
       </div>
     </div>
   </div>
-  <script src="assets/js/map.js"></script>
-  <script src="assets/js/lineEcharts.js"></script>
+  <script src="assets/js/createVue.js"></script>
+  <!-- <script src="assets/js/map.js"></script> -->
+  <!-- <script src="assets/js/lineEcharts.js"></script> -->
 </body>
 
 </html>

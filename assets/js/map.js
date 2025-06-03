@@ -580,7 +580,7 @@ function initChart(mapData) {
         console.error("加载地图数据失败:", error);
     });
 }
-initChart(mapData1);
+
 /**
  * @author wzheng
  * @date 2025年5月29日09:39:38
