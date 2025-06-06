@@ -348,7 +348,7 @@ new Vue({
         ];
     },
     mounted() {
-        this.initChart(this.mapData1);
+        // this.initChart(this.mapData1);
         this.initOrgLineEcharts(this.xData, this.yData);
         this.initStripLineEcharts(this.xData);
         this.initProductLineEcharts(this.productLineData.DATADATE);
