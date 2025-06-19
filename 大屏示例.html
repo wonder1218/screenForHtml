@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-06-06 15:18:54
+ * @LastEditTime: 2025-06-19 17:58:45
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,6 +19,9 @@
   <script src="assets/js/vue.js"></script>
   <script src="assets/js/elementIndex.js"></script>
   <!-- <script src="assets/js/global.js"></script> -->
+  <!-- <script src="./assets/js/three.core.min.js"></script>
+  <script src="assets/js/OrbitControls.js"></script>
+  <script src="assets/js/tween.umd.js"></script> -->
   <!-- 引入样式 -->
   <link rel="stylesheet" href="assets/css/elementIndex.css">
   <style>
@@ -51,11 +54,7 @@
           </div>
           <div class="button-wrap">
             <el-select v-model="valueLine" placeholder="请选择" @change="handleLineChange">
-              <el-option
-                v-for="item in optionsLine"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+              <el-option v-for="item in optionsLine" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </div>
@@ -112,11 +111,7 @@
           </div>
           <div class="bank-range">
             <el-select v-model="valueOrg" placeholder="请选择" @change="handleOrgChange">
-              <el-option
-                v-for="item in optionsOrg"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+              <el-option v-for="item in optionsOrg" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </div>
@@ -177,15 +172,20 @@
           <img class="mapline-bottom" src="assets/images/screenfull/mapLine_bottom.png" />
           <img class="mapline-left" src="assets/images/screenfull/mapLine_left.png" />
           <img class="mapline-right" src="assets/images/screenfull/mapLine_right.png" />
-          <div id="mapDiv" style="height: 600px; width: 800px"></div>
+          <!-- <div id="mapDiv" style="height: 600px; width: 800px"></div> -->
           <!-- <div style="height: 600px;width: 800px;" id="mapDiv"></div> -->
+          <div id="container"></div>
+          <div class="center-label">32%<br><span style="font-size:28px;font-weight:normal;">项目数</span></div>
+          <button id="btn-prev" class="btn prev">&#8592;</button>
+          <button id="btn-next" class="btn next">&#8594;</button>
+          <div class="popup" id="popup"></div>
         </div>
         <div class="wordcloud">
           <!-- <div class="wordcloud-title">机构纬度汇总</div> -->
-           <!-- <div style="display: flex;"> -->
-            <div class="wordcloud-content" style="height: 230px; width: 760px" id="productDistribute"></div>
-            <div class="wordcloud-content" style="height: 230px; width: 760px" id="customerDistribute"></div>
-           <!-- </div> -->
+          <!-- <div style="display: flex;"> -->
+          <div class="wordcloud-content" style="height: 230px; width: 760px" id="productDistribute"></div>
+          <div class="wordcloud-content" style="height: 230px; width: 760px" id="customerDistribute"></div>
+          <!-- </div> -->
           <img class="wordcloud-line" src="assets/images/screenfull/mapLine_bottom.png" />
         </div>
       </div>
@@ -198,19 +198,11 @@
           </div>
           <div class="bank-range">
             <el-select v-model="valueProduct" placeholder="请选择" @change="handleProductChange">
-              <el-option
-                v-for="item in optionsProduct"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+              <el-option v-for="item in optionsProduct" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
             <el-select v-model="valueProduct" placeholder="请选择" @change="handleProductChange">
-              <el-option
-                v-for="item in optionsProduct"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+              <el-option v-for="item in optionsProduct" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </div>
@@ -268,19 +260,11 @@
           <img class="block3-line" src="assets/images/screenfull/mapLine_bottom.png" />
           <div class="bank-range">
             <el-select v-model="valuePerson" placeholder="请选择" @change="handleProductChange">
-              <el-option
-                v-for="item in optionsPerson"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+              <el-option v-for="item in optionsPerson" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
             <el-select v-model="valuePerson" placeholder="请选择" @change="handleCustomerChange">
-              <el-option
-                v-for="item in optionsPerson"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+              <el-option v-for="item in optionsPerson" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </div>
@@ -333,8 +317,258 @@
       </div>
     </div>
   </div>
+  <!-- <script src="./assets/js/three.core.min.js"></script> -->
+  <script type="module">
+    import * as THREE from './assets/js/three.module.js';
+    import { update, Tween, Easing } from './assets/js/tween.esm.js';
+    // import { OrbitControls } from './assets/js/OrbitControls.js';
+    // 1. 场景、相机、渲染器
+    const container = document.getElementById('container');
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+    camera.position.set(0, 30, 40);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    container.appendChild(renderer.domElement);
+
+    // 灯光
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const light = new THREE.PointLight(0xffffff, 1.2, 100);
+    light.position.set(20, 20, 20);
+    scene.add(light);
+
+    // 地球球体
+    const sphereGeometry = new THREE.SphereGeometry(10, 64, 64);
+    const sphereMaterial = new THREE.MeshPhongMaterial({
+      color: 0x3399ff,
+      shininess: 100,
+      transparent: true,
+      opacity: 0.95,
+    });
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    scene.add(sphere);
+
+    // 模块数据
+    const moduleData = [
+      { title: '项目一', value: '3009.36', icon: '🏠', desc: '详细数据1' },
+      { title: '项目二', value: '2001.22', icon: '🏢', desc: '详细数据2' },
+      { title: '项目三', value: '1500.00', icon: '⚡', desc: '详细数据3' },
+      { title: '项目四', value: '4000.88', icon: '🛡️', desc: '详细数据4' },
+      { title: '项目五', value: '1234.56', icon: '💰', desc: '详细数据5' },
+      { title: '项目六', value: '5678.90', icon: '📊', desc: '详细数据6' },
+      { title: '项目七', value: '8888.88', icon: '🔊', desc: '详细数据7' },
+      { title: '项目八', value: '9999.99', icon: '🗄️', desc: '详细数据8' },
+    ];
+
+    const group = new THREE.Group();
+    const modules = [];
+    const moduleCount = moduleData.length;
+    const radius = 18; // 环绕半径
+
+    for (let i = 0; i < moduleCount; i++) {
+      const angle = i * (2 * Math.PI / moduleCount);
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      const z = 0;
+      // 创建一个组来包含每个模块的所有元素
+      const moduleGroup = new THREE.Group();
+      moduleGroup.position.set(x, y, z);
+      // 1. 扁平圆柱体
+      const cylinderGeometry = new THREE.CylinderGeometry(2, 2, 0.5, 32, 1, false);
+      const cylinderMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x3399ff,
+        shininess: 80,
+        transparent: true,
+        opacity: 0.8
+      });
+      const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+      // cylinder.position.set(x, y, z + 0.25);
+      
+      // 2. icon
+      cylinder.rotation.x = Math.PI / 2; // 让圆柱体平躺
+      cylinder.position.set(0, 0, 0.25);
+      const iconCanvas = document.createElement('canvas');
+      iconCanvas.width = 64; iconCanvas.height = 64;
+      const iconCtx = iconCanvas.getContext('2d');
+      iconCtx.font = '48px Arial';
+      iconCtx.textAlign = 'center';
+      iconCtx.textBaseline = 'middle';
+      iconCtx.fillText(moduleData[i].icon, 32, 32);
+      const iconTexture = new THREE.CanvasTexture(iconCanvas);
+      const iconMaterial = new THREE.SpriteMaterial({ map: iconTexture, transparent: true });
+      const iconSprite = new THREE.Sprite(iconMaterial);
+      iconSprite.position.set(0, 0, 3);
+      iconSprite.scale.set(3, 3, 1);
+
+      // 3. 数据数值
+      const valueCanvas = document.createElement('canvas');
+      valueCanvas.width = 128; valueCanvas.height = 40;
+      const valueCtx = valueCanvas.getContext('2d');
+      valueCtx.font = 'bold 28px Arial';
+      valueCtx.textAlign = 'center';
+      valueCtx.textBaseline = 'middle';
+      valueCtx.fillStyle = '#fff';
+      valueCtx.fillText(moduleData[i].value, 64, 20);
+      const valueTexture = new THREE.CanvasTexture(valueCanvas);
+      const valueMaterial = new THREE.SpriteMaterial({ map: valueTexture, transparent: true });
+      const valueSprite = new THREE.Sprite(valueMaterial);
+      valueSprite.position.set(0, 0, 5);
+      valueSprite.scale.set(5, 1.5, 1);
+
+      // 4. 标题
+      const titleCanvas = document.createElement('canvas');
+      titleCanvas.width = 128; titleCanvas.height = 40;
+      const titleCtx = titleCanvas.getContext('2d');
+      titleCtx.font = 'bold 22px Arial';
+      titleCtx.textAlign = 'center';
+      titleCtx.textBaseline = 'middle';
+      titleCtx.fillStyle = '#3399ff';
+      titleCtx.fillText(moduleData[i].title, 64, 20);
+      const titleTexture = new THREE.CanvasTexture(titleCanvas);
+      const titleMaterial = new THREE.SpriteMaterial({ map: titleTexture, transparent: true });
+      const titleSprite = new THREE.Sprite(titleMaterial);
+      titleSprite.position.set(0, 0, 7);
+      titleSprite.scale.set(5, 1.5, 1);
+
+      // 5. 数据在圆柱体正前方
+      const dataCanvas = document.createElement('canvas');
+      dataCanvas.width = 128; dataCanvas.height = 40;
+      const dataCtx = dataCanvas.getContext('2d');
+      dataCtx.font = 'bold 20px Arial';
+      dataCtx.textAlign = 'center';
+      dataCtx.textBaseline = 'middle';
+      dataCtx.fillStyle = '#fff';
+      dataCtx.fillText(moduleData[i].desc, 64, 20);
+      const dataTexture = new THREE.CanvasTexture(dataCanvas);
+      const dataMaterial = new THREE.SpriteMaterial({ map: dataTexture, transparent: true });
+      const dataSprite = new THREE.Sprite(dataMaterial);
+      // 圆柱体正前方（x, y, z+1.5），再往外偏移
+      const frontX = Math.cos(angle) * (radius + 3.5);
+      const frontY = Math.sin(angle) * (radius + 3.5);
+      dataSprite.position.set(frontX, frontY, z + 1.5);
+      dataSprite.scale.set(5, 1.5, 1);
+
+      // 6. 虚线连接线
+      const points = [
+        new THREE.Vector3(0, 0, 0.5),
+        new THREE.Vector3(0, 0, 7)
+      ];
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const lineMaterial = new THREE.LineDashedMaterial({
+        color: 0x3399ff,
+        dashSize: 2,
+        gapSize: 1,
+        linewidth: 2
+      });
+      const line = new THREE.Line(lineGeometry, lineMaterial);
+      line.computeLineDistances();
+      // group.add(line);
+      // 将所有元素添加到模块组
+      moduleGroup.add(cylinder, iconSprite, valueSprite, titleSprite, line);
+      // 创建一个容器组来保持方向
+      const containerGroup = new THREE.Group();
+      containerGroup.add(moduleGroup);
+      
+      // 将容器组添加到主组
+      group.add(containerGroup);
+      // 更新模块数组
+      modules.push({ 
+        containerGroup,
+        cylinder, 
+        iconSprite, 
+        valueSprite, 
+        titleSprite,
+        angle 
+      });
+    }
+    scene.add(group);
+
+    // 自动切换
+    let currentIndex = 0;
+    const switchModule = (next = true) => {
+      if (!autoRotate && next === true) return; // 如果是自动切换且autoRotate为false，则不执行
+      currentIndex = (currentIndex + (next ? 1 : -1) + moduleCount) % moduleCount;
+      // 让当前模块正对用户（z轴旋转）
+      const targetAngle = -currentIndex * (2 * Math.PI / moduleCount);
+      new Tween(group.rotation)
+        .to({ z: targetAngle }, 800)
+        .easing(Easing.Cubic.Out)
+        .start();
+    };
+    // 自动切换只在autoRotate为true时执行
+    setInterval(() => { 
+      if (autoRotate) {
+        switchModule(true);
+      }
+    }, 2500);
+
+    document.getElementById('btn-prev').onclick = () => { autoRotate = false; switchModule(false); };
+    document.getElementById('btn-next').onclick = () => { autoRotate = false; switchModule(true); };
+
+    // 悬浮弹窗
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const popup = document.getElementById('popup');
+    let autoRotate = true;
+    // 添加鼠标移出容器的事件监听
+    container.addEventListener('mouseleave', function() {
+      autoRotate = true;
+      popup.style.display = 'none';
+    });
+    renderer.domElement.addEventListener('mousemove', function(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      
+      // 获取所有可能被点击的对象
+      const intersectObjects = modules.map(m => m.cylinder);
+      const intersects = raycaster.intersectObjects(intersectObjects);
+      // const intersects = raycaster.intersectObjects(modules);
+      if (intersects.length > 0) {
+        autoRotate = false;
+        // const moduleIndex = modules.indexOf(intersects[0].object);
+        // 找到被点击的圆柱体对应的模块索引
+        const cylinderIndex = intersectObjects.indexOf(intersects[0].object);
+        popup.style.display = 'block';
+        popup.innerHTML = `<b>${moduleData[cylinderIndex].title}</b><br>数值：${moduleData[cylinderIndex].value}<br>${moduleData[cylinderIndex].desc}`;
+        // popup.innerHTML = `<b>${moduleData[moduleIndex].title}</b><br>数值：${moduleData[moduleIndex].value}<br>${moduleData[moduleIndex].desc}`;
+
+        // 弹窗定位 - 使用clientX/clientY来确保正确的屏幕位置
+        const x = event.clientX;
+        const y = event.clientY;
+        popup.style.left = x + 20 + 'px';
+        popup.style.top = y - 20 + 'px';
+      } else {
+        // 恢复自动旋转
+        autoRotate = true;
+        popup.style.display = 'none';
+      }
+    }); 
+    // 渲染循环
+    function animate() {
+      requestAnimationFrame(animate);
+      update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // 响应式
+    window.addEventListener('resize', () => {
+      const width = container.offsetWidth;
+      const height = container.offsetHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    });
+  </script>
   <script src="assets/js/createVue.js"></script>
-  <script src="assets/js/map.js"></script>
+  <!-- <script src="assets/js/map.js"></script> -->
   <!-- <script src="assets/js/lineEcharts.js"></script> -->
 </body>
 

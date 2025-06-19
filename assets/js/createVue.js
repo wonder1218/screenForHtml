@@ -1,3 +1,4 @@
+// import * as THREE from 'three'
 new Vue({
     el: '#app',
     data() {
@@ -222,6 +223,40 @@ new Vue({
                 value: '总行_营业部',
                 label: '总行_营业部'
             }],
+            myChart: null,
+            isGlobeAutoRotating: true,
+            autoCycleInterval: null, // 用于项目数据自动切换的定时器
+            userInteracting: false, // 用户是否正在交互 (鼠标悬停在图表上)
+            highlightedIndex: 0, // 当前高亮的项目索引
+
+            // 弹出框状态和内容
+            popupVisible: false,
+            popupStyle: {
+                left: '0px',
+                top: '0px',
+                display: 'none', // 默认隐藏，v-if控制显隐，这里只做初始值
+            },
+            popupContent: {
+                title: '',
+                value: '',
+            },
+
+            // 图片资源 (使用 public 目录路径)
+            globeTextureUrl: '/data/globe.gl.bin', // 注意：Vue CLI public 目录直接用 / 根路径
+            iconBaseUrl: '/icons/', // 注意：Vue CLI public 目录直接用 / 根路径
+
+            // 外围节点的数据
+            outerNodesData: [
+                { id: 'node0', name: '建筑数据', value: 3009.36, icon: 'house.png', initialAngle: 0 },
+                { id: 'node1', name: '财务数据', value: 3009.36, icon: 'money.png', initialAngle: 45 },
+                { id: 'node2', name: '销售数据', value: 3009.36, icon: 'chart.png', initialAngle: 90 },
+                { id: 'node3', name: '银行数据', value: 3009.36, icon: 'bank.png', initialAngle: 135 },
+                { id: 'node4', name: '电力数据', value: 3009.36, icon: 'lightning.png', initialAngle: 180 },
+                { id: 'node5', name: '存储数据', value: 3009.36, icon: 'database.png', initialAngle: 225 },
+                { id: 'node6', name: '监控数据', value: 3009.36, icon: 'monitor.png', initialAngle: 270 },
+                { id: 'node7', name: '报警数据', value: 3009.36, icon: 'bell.png', initialAngle: 315 },
+            ],
+            globeHitRadius: 80, // 鼠标检测地球区域的半径
         };
     },
     created() {
@@ -355,8 +390,584 @@ new Vue({
         this.initCustomerLineEcharts(this.customerData.DATADATE, this.customerData.RATE);
         this.initCustomerDistributeEcharts(this.customerDistributeData);
         this.initProductDistributeEcharts(this.customerDistributeDataCopy);
+        // this.initThree();
+        // this.initRorateChart();
+        // this.startAutoCycle(); // 启动项目数据自动切换
+        // window.addEventListener('resize', this.handleResize); // 监听窗口 resize
+    },
+    beforeDestroy() {
+        if (this.myChart) {
+            this.myChart.dispose();
+        }
+        clearInterval(this.autoCycleInterval);
+        window.removeEventListener('resize', this.handleResize); // 移除监听
     },
     methods: {
+        handleResize() {
+            if (this.myChart) {
+                this.myChart.resize();
+                this.updateChartOptionsForPosition(); // 尺寸变化后，重新计算位置并更新
+            }
+        },
+        initRorateChart() {
+            const chartDom = document.getElementById('globe-chart'); // 或者使用 this.$refs.globeChartContainer.querySelector('#globe-chart')
+            if (!chartDom) {
+                console.error('ECharts DOM element (#globe-chart) not found!');
+                return;
+            }
+
+            this.myChart = echarts.init(chartDom);
+            // 初始化时设置选项
+            this.updateChartOptionsForPosition();
+
+            // ------------- 鼠标事件监听 -------------
+            this.myChart.on('mousemove', (params) => {
+                this.userInteracting = true; // 用户正在交互
+                const chartInstance = this.myChart;
+                const pointInPixel = [params.event.offsetX, params.event.offsetY];
+                const chartWidth = chartDom.offsetWidth;
+                const chartHeight = chartDom.offsetHeight;
+                const chartCenter = [chartWidth / 2, chartHeight / 2];
+                // this.globeHitRadius = 80; // 用于鼠标检测地球区域的半径
+
+                // 1. 判断是否悬停在地球上
+                const distanceToGlobeCenter = Math.sqrt(
+                    Math.pow(pointInPixel[0] - chartCenter[0], 2) +
+                    Math.pow(pointInPixel[1] - chartCenter[1], 2)
+                );
+
+                if (distanceToGlobeCenter <= this.globeHitRadius) {
+                    this.pauseAutoCycle(); // 暂停项目数据切换
+                    this.setGlobeAutoRotate(false); // 停止地球旋转
+                    this.showPopup(pointInPixel[0] + 15, pointInPixel[1] + 15, '全球数据', '点击查看详情');
+                    return;
+                }
+
+                // 2. 判断是否悬停在某个自定义节点上
+                let hoveredNodeInfo = null;
+                if (params.componentType === 'series' && params.seriesType === 'custom' && params.target && params.target.info) {
+                    hoveredNodeInfo = params.target.info.originalData;
+                    if (hoveredNodeInfo) {
+                        this.pauseAutoCycle();
+                        this.setGlobeAutoRotate(false);
+                        this.showPopup(pointInPixel[0] + 15, pointInPixel[1] + 15, hoveredNodeInfo.name, hoveredNodeInfo.value.toFixed(2));
+                        return;
+                    }
+                }
+
+                // 3. 鼠标不在地球上，也不在任何节点上
+                this.resumeAutoCycleWithDelay();
+                this.setGlobeAutoRotate(true);
+                this.hidePopup();
+            });
+
+            // 鼠标离开整个图表区域时，恢复旋转并隐藏弹出框
+            chartDom.addEventListener('mouseleave', () => {
+                this.userInteracting = false;
+                this.resumeAutoCycleWithDelay();
+                this.setGlobeAutoRotate(true);
+                this.hidePopup();
+            });
+
+            // ECharts 点击事件 (可选，用于处理点击详情)
+            this.myChart.on('click', (params) => {
+                if (params.componentType === 'graphic' && params.info && params.info.type === 'globe') {
+                    console.log('点击了地球');
+                } else if (params.componentType === 'series' && params.seriesType === 'custom' && params.target && params.target.info) {
+                    const clickedNode = params.target.info.originalData;
+                    console.log('点击了项目数据框：', clickedNode.name);
+                }
+            });
+        },
+
+        // 封装更新图表选项的方法，便于 resize 和初始加载时调用
+        updateChartOptionsForPosition() {
+            const chartDom = document.getElementById('globe-chart');
+            if (!chartDom || !this.myChart) {
+                return;
+            }
+            const chartWidth = chartDom.offsetWidth;
+            const chartHeight = chartDom.offsetHeight;
+            const chartCenter = [chartWidth / 2, chartHeight / 2];
+            const nodeNormalRadius = Math.min(chartWidth, chartHeight) * 0.35;
+            const nodeHighlightPosition = [chartCenter[0], chartHeight - 120];
+
+            // custom series 的 renderItem 函数
+            // 注意：这里使用箭头函数或 bind(this) 来确保能访问 Vue 组件的 this
+            const renderOuterNodeItem = (params, api) => {
+                const dataIndex = params.dataIndex;
+                const item = this.outerNodesData[dataIndex];
+                const isHighlighted = (dataIndex === this.highlightedIndex);
+
+                let currentPosition;
+                if (isHighlighted) {
+                    currentPosition = nodeHighlightPosition;
+                } else {
+                    const numNodes = this.outerNodesData.length;
+                    const angleOffsetPerItem = 360 / numNodes;
+                    const currentHighlightedAngle = this.outerNodesData[this.highlightedIndex].initialAngle;
+
+                    let relativeIndex = dataIndex - this.highlightedIndex;
+                    if (relativeIndex < 0) {
+                        relativeIndex += numNodes;
+                    }
+
+                    const dynamicAngle = (currentHighlightedAngle + (relativeIndex * angleOffsetPerItem)) % 360;
+                    // 辅助函数，获取圆周位置
+                    const getNormalNodePosition = (angle) => {
+                        const rad = angle * Math.PI / 180;
+                        return [
+                            chartCenter[0] + nodeNormalRadius * Math.cos(rad),
+                            chartCenter[1] + nodeNormalRadius * Math.sin(rad)
+                        ];
+                    };
+                    currentPosition = getNormalNodePosition(dynamicAngle);
+                }
+
+                const group = {
+                    type: 'group',
+                    children: [],
+                    info: {
+                        dataIndex: dataIndex,
+                        originalData: item
+                    }
+                };
+
+                // ------------- 绘制连接线 -------------
+                group.children.push({
+                    type: 'line',
+                    shape: {
+                        x1: chartCenter[0],
+                        y1: chartCenter[1],
+                        x2: currentPosition[0],
+                        y2: currentPosition[1]
+                    },
+                    style: {
+                        stroke: isHighlighted ? 'rgba(0, 255, 255, 0.8)' : 'rgba(0, 191, 255, 0.3)',
+                        lineWidth: isHighlighted ? 2 : 1,
+                        lineDash: [5, 5]
+                    },
+                    z: 0,
+                    transition: ['shape.x2', 'shape.y2', 'style.stroke', 'style.lineWidth']
+                });
+
+                // ------------- 绘制项目数据框 (模拟立体感和玻璃效果) -------------
+                const nodeBgWidth = isHighlighted ? 180 : 120;
+                const nodeBgHeight = isHighlighted ? 150 : 100;
+                const baseRadius = isHighlighted ? 15 : 10;
+
+                // 1. 底部椭圆阴影 (模拟投影，增加浮空感)
+                group.children.push({
+                    type: 'ellipse',
+                    shape: {
+                        cx: currentPosition[0],
+                        cy: currentPosition[1] + nodeBgHeight / 2 + (isHighlighted ? 20 : 8),
+                        rx: nodeBgWidth * (isHighlighted ? 0.4 : 0.3),
+                        ry: nodeBgHeight * (isHighlighted ? 0.15 : 0.1)
+                    },
+                    style: {
+                        fill: 'rgba(0, 0, 0, 0.3)',
+                        shadowBlur: isHighlighted ? 25 : 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)',
+                        shadowOffsetY: isHighlighted ? 10 : 5
+                    },
+                    z: 0.5,
+                    transition: ['shape', 'style']
+                });
+
+                // 2. 主体矩形背景 (带渐变和光晕)
+                group.children.push({
+                    type: 'rect',
+                    shape: {
+                        x: currentPosition[0] - nodeBgWidth / 2,
+                        y: currentPosition[1] - nodeBgHeight / 2,
+                        width: nodeBgWidth,
+                        height: nodeBgHeight,
+                        r: baseRadius
+                    },
+                    style: {
+                        fill: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: isHighlighted ? 'rgba(0, 191, 255, 0.3)' : 'rgba(0, 191, 255, 0.1)' },
+                            { offset: 1, color: isHighlighted ? 'rgba(0, 100, 200, 0.7)' : 'rgba(0, 100, 200, 0.4)' }
+                        ]),
+                        stroke: isHighlighted ? 'rgba(0, 255, 255, 0.8)' : 'rgba(0, 191, 255, 0.5)',
+                        lineWidth: isHighlighted ? 3 : 2,
+                        shadowBlur: isHighlighted ? 20 : 10,
+                        shadowColor: isHighlighted ? 'rgba(0, 255, 255, 0.9)' : 'rgba(0, 191, 255, 0.7)',
+                        shadowOffsetY: 0
+                    },
+                    z: 1,
+                    transition: ['shape', 'style']
+                });
+
+                // 3. 图标
+                const iconSize = isHighlighted ? 60 : 40;
+                group.children.push({
+                    type: 'image',
+                    style: {
+                        image: `${this.iconBaseUrl}${item.icon}`, // 使用 Vue 组件的 this.iconBaseUrl
+                        x: currentPosition[0] - iconSize / 2,
+                        y: currentPosition[1] - nodeBgHeight / 2 + (isHighlighted ? 15 : 10),
+                        width: iconSize,
+                        height: iconSize
+                    },
+                    z: 2,
+                    transition: ['style.x', 'style.y', 'style.width', 'style.height']
+                });
+
+                // 4. "数据数据" 文本
+                group.children.push({
+                    type: 'text',
+                    style: {
+                        text: item.name,
+                        x: currentPosition[0],
+                        y: currentPosition[1] + (isHighlighted ? 35 : 15),
+                        textAlign: 'center',
+                        textVerticalAlign: 'middle',
+                        fill: '#fff',
+                        fontSize: isHighlighted ? 18 : 14,
+                        fontWeight: isHighlighted ? 'bold' : 'normal'
+                    },
+                    z: 2,
+                    transition: ['style.x', 'style.y', 'style.fontSize']
+                });
+
+                // 5. 数据值 "3009.36"
+                group.children.push({
+                    type: 'text',
+                    style: {
+                        text: item.value.toFixed(2),
+                        x: currentPosition[0],
+                        y: currentPosition[1] + (isHighlighted ? 60 : 35),
+                        textAlign: 'center',
+                        textVerticalAlign: 'middle',
+                        fill: '#00ffff',
+                        fontSize: isHighlighted ? 24 : 18,
+                        fontWeight: 'bolder'
+                    },
+                    z: 2,
+                    transition: ['style.x', 'style.y', 'style.fontSize']
+                });
+
+                // 6. "项目数据" 按钮样式文字
+                const buttonWidth = isHighlighted ? 140 : 100;
+                const buttonHeight = isHighlighted ? 40 : 30;
+                const buttonRadius = isHighlighted ? 20 : 15;
+                group.children.push({
+                    type: 'rect',
+                    shape: {
+                        x: currentPosition[0] - buttonWidth / 2,
+                        y: currentPosition[1] + nodeBgHeight / 2 - (isHighlighted ? 10 : 0) - buttonHeight,
+                        width: buttonWidth,
+                        height: buttonHeight,
+                        r: buttonRadius
+                    },
+                    style: {
+                        fill: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: 'rgba(0, 191, 255, 0.7)' },
+                            { offset: 1, color: 'rgba(0, 100, 200, 0.7)' }
+                        ]),
+                        stroke: 'rgba(0, 191, 255, 1)',
+                        lineWidth: 1,
+                        shadowBlur: 5,
+                        shadowColor: 'rgba(0, 191, 255, 0.5)',
+                        shadowOffsetY: 2
+                    },
+                    z: 2,
+                    transition: ['shape', 'style']
+                });
+                group.children.push({
+                    type: 'text',
+                    style: {
+                        text: '项目数据',
+                        x: currentPosition[0],
+                        y: currentPosition[1] + nodeBgHeight / 2 - (isHighlighted ? 10 : 0) - buttonHeight / 2,
+                        textAlign: 'center',
+                        textVerticalAlign: 'middle',
+                        fill: '#fff',
+                        fontSize: isHighlighted ? 16 : 14
+                    },
+                    z: 3,
+                    transition: ['style.x', 'style.y', 'style.fontSize']
+                });
+
+                // 7. 透明的点击区域 (覆盖整个数据框，用于捕获鼠标事件)
+                group.children.push({
+                    type: 'rect',
+                    shape: {
+                        x: currentPosition[0] - nodeBgWidth / 2,
+                        y: currentPosition[1] - nodeBgHeight / 2,
+                        width: nodeBgWidth,
+                        height: nodeBgHeight
+                    },
+                    style: {
+                        fill: 'transparent'
+                    },
+                    z: 4,
+                    silent: false,
+                    transition: ['shape']
+                });
+
+                return group;
+            };
+
+            const option = {
+                backgroundColor: '#0c2447',
+
+                animationDuration: 1000,
+                animationEasing: 'cubicInOut',
+
+                graphic: [
+                    // 顶部标题
+                    {
+                        type: 'text',
+                        style: {
+                            text: 'XXX年 建设的数字化转型',
+                            x: chartCenter[0],
+                            y: 50,
+                            textAlign: 'center',
+                            fill: '#fff',
+                            fontSize: 24,
+                            fontWeight: 'bold'
+                        },
+                        z: 10
+                    },
+                    // 中心百分比
+                    {
+                        type: 'text',
+                        style: {
+                            text: '32%',
+                            x: chartCenter[0],
+                            y: chartCenter[1] - 15,
+                            textAlign: 'center',
+                            textVerticalAlign: 'middle',
+                            fill: '#fff',
+                            fontSize: 40,
+                            fontWeight: 'bold'
+                        },
+                        z: 10
+                    },
+                    // 中心“项目数”文字
+                    {
+                        type: 'text',
+                        style: {
+                            text: '项目数',
+                            x: chartCenter[0],
+                            y: chartCenter[1] + 20,
+                            textAlign: 'center',
+                            textVerticalAlign: 'middle',
+                            fill: '#eee',
+                            fontSize: 18
+                        },
+                        z: 10
+                    },
+                    // 中心环形“道路”背景 (模拟立体感，可以画多个环)
+                    {
+                        type: 'arc',
+                        shape: {
+                            cx: chartCenter[0],
+                            cy: chartCenter[1],
+                            r: nodeNormalRadius - 50,
+                            r0: nodeNormalRadius + 50,
+                            startAngle: 0,
+                            endAngle: Math.PI * 2
+                        },
+                        style: {
+                            fill: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                { offset: 0, color: 'rgba(255, 255, 255, 0.05)' },
+                                { offset: 0.5, color: 'rgba(0, 191, 255, 0.1)' },
+                                { offset: 1, color: 'rgba(255, 255, 255, 0.05)' }
+                            ]),
+                            stroke: 'rgba(0, 191, 255, 0.2)',
+                            lineWidth: 1
+                        },
+                        z: 0
+                    },
+                    // 内环（靠近地球的环）
+                    {
+                        type: 'circle',
+                        shape: {
+                            cx: chartCenter[0],
+                            cy: chartCenter[1],
+                            r: 100
+                        },
+                        style: {
+                            fill: 'rgba(255, 255, 255, 0.1)',
+                            stroke: 'rgba(0, 191, 255, 0.3)',
+                            lineWidth: 2,
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 191, 255, 0.5)',
+                            shadowOffsetY: 0
+                        },
+                        z: 0.1
+                    },
+                    // 最中心的小环 (模拟地球底座的光环)
+                    {
+                        type: 'circle',
+                        shape: {
+                            cx: chartCenter[0],
+                            cy: chartCenter[1],
+                            r: 60
+                        },
+                        style: {
+                            fill: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+                                { offset: 0, color: 'rgba(0, 255, 255, 0.5)' },
+                                { offset: 1, color: 'rgba(0, 191, 255, 0)' }
+                            ]),
+                            shadowBlur: 20,
+                            shadowColor: 'rgba(0, 255, 255, 0.7)'
+                        },
+                        z: 0.2
+                    },
+                    // 为地球添加一个透明可点击区域 (用于捕获地球鼠标事件)
+                    {
+                        type: 'circle',
+                        shape: {
+                            cx: chartCenter[0],
+                            cy: chartCenter[1],
+                            r: this.globeHitRadius
+                        },
+                        style: {
+                            fill: 'transparent'
+                        },
+                        z: 5,
+                        silent: false,
+                        info: { type: 'globe' }
+                    }
+                ],
+
+                globe: {
+                    baseTexture: this.globeTextureUrl,
+                    environment: '#0c2447',
+                    light: {
+                        main: { color: '#fff', intensity: 1.5, shadow: true, alpha: 40, beta: 0 },
+                        ambient: { intensity: 0.2 }
+                    },
+                    shading: 'realistic',
+                    realisticMaterial: { roughness: 0.9, metalness: 0 },
+                    viewControl: {
+                        autoRotate: this.isGlobeAutoRotating,
+                        autoRotateDirection: 'right',
+                        autoRotateSpeed: 5,
+                        autoRotateAfterStill: 3000,
+                        damping: 0.8,
+                        zoomSensitivity: 0,
+                        rotateSensitivity: 0,
+                        panSensitivity: 0,
+                        distance: 200,
+                        alpha: 25,
+                        beta: 15
+                    },
+                    postEffect: {
+                        enable: true,
+                        SSAO: { enable: true, intensity: 1, radius: 2 }
+                    },
+                    groundPlane: { show: false },
+                    silent: true
+                },
+
+                series: [
+                    {
+                        type: 'custom',
+                        coordinateSystem: 'none',
+                        renderItem: renderOuterNodeItem.bind(this), // 关键：绑定 this
+                        data: this.outerNodesData.map((item, index) => ({
+                            value: [index, item.value],
+                            ...item
+                        }))
+                    }
+                ]
+            };
+
+            this.myChart.setOption(option);
+        },
+
+        startAutoCycle() {
+            clearInterval(this.autoCycleInterval);
+            this.autoCycleInterval = setInterval(() => {
+                if (!this.userInteracting) {
+                    this.highlightedIndex = (this.highlightedIndex + 1) % this.outerNodesData.length;
+                    this.updateChartDataAndRender(); // 更新数据并重新渲染
+                }
+            }, 3000);
+        },
+
+        pauseAutoCycle() {
+            clearInterval(this.autoCycleInterval);
+        },
+
+        resumeAutoCycleWithDelay() {
+            this.pauseAutoCycle();
+            setTimeout(() => {
+                if (!this.userInteracting) {
+                    this.startAutoCycle();
+                }
+            }, 500);
+        },
+
+        setGlobeAutoRotate(rotate) {
+            if (this.myChart && this.isGlobeAutoRotating !== rotate) {
+                this.myChart.setOption({
+                    globe: {
+                        viewControl: {
+                            autoRotate: rotate
+                        }
+                    }
+                });
+                this.isGlobeAutoRotating = rotate;
+            }
+        },
+
+        showPopup(x, y, title, value) {
+            this.popupVisible = true;
+            // 弹出框位置相对于 chartDom
+            const chartContainerRect = this.$refs.globeChartContainer.getBoundingClientRect();
+            this.popupStyle.left = `${x + chartContainerRect.left}px`;
+            this.popupStyle.top = `${y + chartContainerRect.top}px`;
+            this.popupContent.title = title;
+            this.popupContent.value = value;
+        },
+
+        hidePopup() {
+            this.popupVisible = false;
+        },
+
+        // 封装数据更新和渲染
+        updateChartDataAndRender() {
+            this.myChart?.setOption({
+                series: [{
+                    type: 'custom',
+                    // renderItem 保持不变，它已经绑定了 this
+                    data: this.outerNodesData.map((item, index) => ({
+                        value: [index, item.value],
+                        ...item
+                    }))
+                }]
+            }, {
+                notMerge: false,
+                lazyUpdate: false
+            });
+        },
+
+        // 手动切换上一个项目
+        prevItem() {
+            this.userInteracting = true;
+            this.pauseAutoCycle();
+            this.setGlobeAutoRotate(false);
+            this.highlightedIndex = (this.highlightedIndex - 1 + this.outerNodesData.length) % this.outerNodesData.length;
+            this.updateChartDataAndRender();
+            this.resumeAutoCycleWithDelay();
+        },
+
+        // 手动切换下一个项目
+        nextItem() {
+            this.userInteracting = true;
+            this.pauseAutoCycle();
+            this.setGlobeAutoRotate(false);
+            this.highlightedIndex = (this.highlightedIndex + 1) % this.outerNodesData.length;
+            this.updateChartDataAndRender();
+            this.resumeAutoCycleWithDelay();
+        },
         /**
          * @author wzheng
          * @date 2025年5月29日09:39:38

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>垂直环形数据可视化 - Three.js</title>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/controls/OrbitControls.js"></script> -->
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #3a7bd5, #00b7ff);
+            color: white;
+        }
+
+        #container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #title {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .panel {
+            position: absolute;
+            background-color: rgba(0, 30, 60, 0.85);
+            border-radius: 12px;
+            padding: 15px;
+            width: 280px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        #info-panel {
+            top: 20px;
+            left: 20px;
+        }
+
+        #stats-panel {
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+        }
+
+        button {
+            background: linear-gradient(to right, #00b7ff, #3a7bd5);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="title">三维数据可视化控制面板</div>
+
+    <div id="container"></div>
+
+    <div class="panel" id="info-panel">
+        <h3>系统状态</h3>
+        <p>数据模块: <span id="module-count">8</span> 个</p>
+        <p>地球模型: <span id="earth-size">R3.5</span></p>
+        <p>数据加载完成</p>
+        <button id="auto-rotate">开启自动旋转</button>
+        <button id="reset-view">重置视图</button>
+    </div>
+
+    <div class="panel" id="stats-panel">
+        <h3>实时性能</h3>
+        <p>FPS: <span id="fps-counter">60</span> FPS</p>
+        <p>渲染时间: <span id="render-time">16</span> ms</p>
+        <p>内存使用: <span id="memory-usage">45.2</span> MB</p>
+        <p>上次更新: <span id="last-update">00:00:00</span></p>
+    </div>
+
+    <script type="module">
+        import * as THREE from './assets/js/three.module.js';
+        import { update, Tween, Easing } from './assets/js/tween.esm.js';
+        import { OrbitControls } from './assets/js/OrbitControls.js';
+        // 初始化Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('container').appendChild(renderer.domElement);
+
+        // 设置相机初始位置 - 从y轴负方向看进去
+        camera.position.set(0, -10, 6);
+
+        // 添加轨道控制
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.screenSpacePanning = false;
+        controls.minDistance = 8;
+        controls.maxDistance = 25;
+
+        // 创建中心地球
+        const earthGeometry = new THREE.SphereGeometry(3.5, 64, 64);
+        const earthMaterial = new THREE.MeshPhongMaterial({
+            color: 0x3498db,
+            transparent: true,
+            opacity: 0.85,
+            shininess: 80,
+            specular: 0x555555
+        });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        scene.add(earth);
+        // 添加地球表面效果
+        const surfaceGeometry = new THREE.SphereGeometry(3.55, 64, 64);
+        const surfaceMaterial = new THREE.MeshBasicMaterial({
+            color: 0x1a7ad9,
+            transparent: true,
+            wireframe: true,
+            opacity: 0.2
+        });
+        const surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+        scene.add(surface);
+
+        // 地球中心文字
+        const earthTextDiv = document.createElement('div');
+        earthTextDiv.style.position = 'absolute';
+        earthTextDiv.style.backgroundColor = 'rgba(0, 60, 120, 0.7)';
+        earthTextDiv.style.padding = '10px 15px';
+        earthTextDiv.style.borderRadius = '8px';
+        earthTextDiv.style.fontSize = '20px';
+        earthTextDiv.style.fontWeight = 'bold';
+        earthTextDiv.style.textAlign = 'center';
+        earthTextDiv.style.lineHeight = '1.3';
+        earthTextDiv.style.zIndex = '5';
+        earthTextDiv.innerHTML = '32%<br>项目数';
+        document.body.appendChild(earthTextDiv);
+
+        // 添加光源
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(0, 5, 10);
+        scene.add(dirLight);
+
+        // 创建环绕的数据模块
+        const modules = [];
+        const radius = 10; // 环形半径
+        const moduleValues = [3009.36, 2850.22, 3120.48, 2945.71, 3208.67, 2780.95, 3312.10, 3025.13];
+
+        // 创建HTML元素用于显示模块内容
+        const moduleContainers = [];
+
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            const x = Math.cos(angle) * radius;
+            const y = 0; // y位置固定为0，使圆环垂直放置
+            const z = Math.sin(angle) * radius;
+
+            // 创建模块容器(Three.js对象)
+            const moduleGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+            const moduleMaterial = new THREE.MeshPhongMaterial({
+                color: 0x3498db,
+                transparent: true,
+                opacity: 0.6,
+                shininess: 60
+            });
+            const moduleMesh = new THREE.Mesh(moduleGeometry, moduleMaterial);
+            moduleMesh.position.set(x, y, z);
+            scene.add(moduleMesh);
+
+            // 创建线条连接地球和模块
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(x, y, z)
+            ]);
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x5dade2,
+                transparent: true,
+                opacity: 0.3
+            });
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            scene.add(line);
+
+            modules.push({ mesh: moduleMesh, line });
+
+            // 创建HTML元素显示模块内容
+            const div = document.createElement('div');
+            div.className = 'module-div';
+            div.style.position = 'absolute';
+            div.style.backgroundColor = 'rgba(0, 60, 120, 0.85)';
+            div.style.padding = '8px 12px';
+            div.style.borderRadius = '6px';
+            div.style.textAlign = 'center';
+            div.style.zIndex = '5';
+            div.style.fontSize = '14px';
+            div.style.lineHeight = '1.4';
+            div.innerHTML = `数据数据<br><strong>${moduleValues[i].toFixed(2)}</strong>`;
+            document.body.appendChild(div);
+            moduleContainers.push({ element: div, position: new THREE.Vector3(x, y, z) });
+        }
+
+        // 创建XY平面网格，使垂直效果更明显
+        const gridSize = 25;
+        const gridDivisions = 25;
+        const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, 0xcccccc, 0x888888);
+        gridHelper.rotation.x = Math.PI / 2; // 旋转网格以匹配XY平面
+        gridHelper.position.y = -0.1; // 略低于XY平面
+        scene.add(gridHelper);
+
+        // 添加坐标轴辅助
+        const axesHelper = new THREE.AxesHelper(15);
+        scene.add(axesHelper);
+
+        // 添加动画函数
+        const animate = function () {
+            requestAnimationFrame(animate);
+
+            // 旋转地球
+            earth.rotation.y += 0.001;
+            surface.rotation.y -= 0.0005;
+
+            // 更新模块位置和内容
+            modules.forEach((module, index) => {
+                // 轻微动画使模块浮动
+                module.mesh.position.y = Math.sin(Date.now() * 0.001 + index) * 0.3;
+            });
+
+            // 更新HTML元素位置
+            moduleContainers.forEach(container => {
+                const screenPos = container.position.clone();
+                screenPos.project(camera);
+                const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+
+                if (screenPos.z < 1) {
+                    container.element.style.display = 'block';
+                    container.element.style.left = `${x}px`;
+                    container.element.style.top = `${y}px`;
+                } else {
+                    container.element.style.display = 'none';
+                }
+            });
+
+            // 更新地球文本位置
+            const earthPos = new THREE.Vector3(0, 0, 0);
+            earthPos.project(camera);
+            const earthX = (earthPos.x * 0.5 + 0.5) * window.innerWidth;
+            const earthY = (-earthPos.y * 0.5 + 0.5) * window.innerHeight;
+            earthTextDiv.style.left = `${earthX - earthTextDiv.offsetWidth / 2}px`;
+            earthTextDiv.style.top = `${earthY - earthTextDiv.offsetHeight / 2}px`;
+
+            controls.update();
+            renderer.render(scene, camera);
+        };
+
+        // 响应窗口调整
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // 添加按钮事件
+        let rotationEnabled = false;
+        document.getElementById('auto-rotate').addEventListener('click', () => {
+            rotationEnabled = !rotationEnabled;
+            document.getElementById('auto-rotate').textContent =
+                rotationEnabled ? '停止自动旋转' : '开启自动旋转';
+        });
+
+        document.getElementById('reset-view').addEventListener('click', () => {
+            camera.position.set(0, -10, 6);
+            camera.lookAt(0, 0, 0);
+        });
+
+        // 模拟性能计数器更新
+        setInterval(() => {
+            const fps = Math.random() * 10 + 55;
+            const renderTime = Math.random() * 3 + 14;
+            const memory = (Math.random() * 5 + 43).toFixed(1);
+
+            document.getElementById('fps-counter').textContent = fps.toFixed(0);
+            document.getElementById('render-time').textContent = renderTime.toFixed(1);
+            document.getElementById('memory-usage').textContent = memory;
+
+            // 更新时间
+            const now = new Date();
+            document.getElementById('last-update').textContent =
+                now.toTimeString().split(' ')[0];
+        }, 1000);
+
+        // 开始动画
+        animate();
+    </script>
+</body>
+
+</html>
