@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-06-19 17:58:45
+ * @LastEditTime: 2025-06-20 13:47:06
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -342,16 +342,35 @@
     light.position.set(20, 20, 20);
     scene.add(light);
 
-    // 地球球体
-    const sphereGeometry = new THREE.SphereGeometry(10, 64, 64);
-    const sphereMaterial = new THREE.MeshPhongMaterial({
-      color: 0x3399ff,
-      shininess: 100,
-      transparent: true,
-      opacity: 0.95,
+    // 创建中心地球
+    const earthGeometry = new THREE.SphereGeometry(10, 64, 64);
+    const earthMaterial = new THREE.MeshPhongMaterial({
+        color: 0x3498db,
+        transparent: true,
+        opacity: 0.85,
+        shininess: 80,
+        specular: 0x555555
     });
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    scene.add(sphere);
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
+    // 添加地球表面效果
+    const surfaceGeometry = new THREE.SphereGeometry(10, 64, 64);
+    const surfaceMaterial = new THREE.MeshBasicMaterial({
+        color: 0x1a7ad9,
+        transparent: true,
+        wireframe: true,
+        opacity: 0.2
+    });
+    const surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+    scene.add(surface);
+
+    // 添加光源
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    dirLight.position.set(0, 5, 10);
+    scene.add(dirLight);
 
     // 模块数据
     const moduleData = [
@@ -368,7 +387,7 @@
     const group = new THREE.Group();
     const modules = [];
     const moduleCount = moduleData.length;
-    const radius = 18; // 环绕半径
+    const radius = 22; // 环绕半径
 
     for (let i = 0; i < moduleCount; i++) {
       const angle = i * (2 * Math.PI / moduleCount);
@@ -454,22 +473,24 @@
       dataSprite.scale.set(5, 1.5, 1);
 
       // 6. 虚线连接线
-      const points = [
-        new THREE.Vector3(0, 0, 0.5),
-        new THREE.Vector3(0, 0, 7)
-      ];
-      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, 0, 0), // 地球中心
+          new THREE.Vector3(x, y, z)  // 项目球心
+      ]);
       const lineMaterial = new THREE.LineDashedMaterial({
-        color: 0x3399ff,
-        dashSize: 2,
-        gapSize: 1,
-        linewidth: 2
+          color: 0x5dade2,
+          dashSize: 1,
+          gapSize: 0.7,
+          linewidth: 2,
+          transparent: true,
+          opacity: 0.7
       });
       const line = new THREE.Line(lineGeometry, lineMaterial);
       line.computeLineDistances();
+      group.add(line); // 让线跟随整体旋转
       // group.add(line);
       // 将所有元素添加到模块组
-      moduleGroup.add(cylinder, iconSprite, valueSprite, titleSprite, line);
+      moduleGroup.add(cylinder, iconSprite, valueSprite, titleSprite);
       // 创建一个容器组来保持方向
       const containerGroup = new THREE.Group();
       containerGroup.add(moduleGroup);
@@ -490,22 +511,24 @@
 
     // 自动切换
     let currentIndex = 0;
-    const switchModule = (next = true) => {
-      if (!autoRotate && next === true) return; // 如果是自动切换且autoRotate为false，则不执行
-      currentIndex = (currentIndex + (next ? 1 : -1) + moduleCount) % moduleCount;
-      // 让当前模块正对用户（z轴旋转）
-      const targetAngle = -currentIndex * (2 * Math.PI / moduleCount);
+    let autoRotate = true;
+    let currentAngle = 0;
+    function switchModule(next = true)  {
+      const step = 2 * Math.PI / moduleCount;
+      if (next) {
+        currentAngle += step; // 顺时针
+      } else {
+        currentAngle -= step; // 逆时针
+      }
       new Tween(group.rotation)
-        .to({ z: targetAngle }, 800)
+        .to({ z: currentAngle }, 800)
         .easing(Easing.Cubic.Out)
         .start();
     };
     // 自动切换只在autoRotate为true时执行
     setInterval(() => { 
-      if (autoRotate) {
-        switchModule(true);
-      }
-    }, 2500);
+      if (autoRotate) switchModule(true);
+    }, 4000);
 
     document.getElementById('btn-prev').onclick = () => { autoRotate = false; switchModule(false); };
     document.getElementById('btn-next').onclick = () => { autoRotate = false; switchModule(true); };
@@ -514,7 +537,6 @@
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const popup = document.getElementById('popup');
-    let autoRotate = true;
     // 添加鼠标移出容器的事件监听
     container.addEventListener('mouseleave', function() {
       autoRotate = true;
