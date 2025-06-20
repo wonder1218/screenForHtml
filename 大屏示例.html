@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-06-20 13:47:06
+ * @LastEditTime: 2025-06-20 16:11:40
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -175,7 +175,7 @@
           <!-- <div id="mapDiv" style="height: 600px; width: 800px"></div> -->
           <!-- <div style="height: 600px;width: 800px;" id="mapDiv"></div> -->
           <div id="container"></div>
-          <div class="center-label">32%<br><span style="font-size:28px;font-weight:normal;">项目数</span></div>
+          <div class="center-label" style="line-height: 1.1; text-align: center;">32%<br><span style="font-size:28px;font-weight:normal;">项目数</span></div>
           <button id="btn-prev" class="btn prev">&#8592;</button>
           <button id="btn-next" class="btn next">&#8594;</button>
           <div class="popup" id="popup"></div>
@@ -322,6 +322,24 @@
     import * as THREE from './assets/js/three.module.js';
     import { update, Tween, Easing } from './assets/js/tween.esm.js';
     // import { OrbitControls } from './assets/js/OrbitControls.js';
+    // 圆角矩形绘制函数
+    function drawRoundRect(ctx, x, y, w, h, r, fillStyle) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+      ctx.restore();
+    }
     // 1. 场景、相机、渲染器
     const container = document.getElementById('container');
     const width = container.offsetWidth;
@@ -329,7 +347,8 @@
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-    camera.position.set(0, 30, 40);
+    camera.position.set(0, 60, 25); // y轴正方向50，z轴正方向20
+    camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -387,16 +406,18 @@
     const group = new THREE.Group();
     const modules = [];
     const moduleCount = moduleData.length;
-    const radius = 22; // 环绕半径
+    const radius = 30; // 环绕半径
+    const tiltAngle = Math.PI / 10; // 约18度，可根据需要调整
 
     for (let i = 0; i < moduleCount; i++) {
-      const angle = i * (2 * Math.PI / moduleCount);
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
+      const angle = 0 - i * (2 * Math.PI / moduleCount); // 0度在y轴正方向
+      const x = Math.sin(angle) * radius;
+      const y = Math.cos(angle) * radius;
       const z = 0;
       // 创建一个组来包含每个模块的所有元素
       const moduleGroup = new THREE.Group();
       moduleGroup.position.set(x, y, z);
+      moduleGroup.scale.set(1.4, 1.4, 1.4);
       // 1. 扁平圆柱体
       const cylinderGeometry = new THREE.CylinderGeometry(2, 2, 0.5, 32, 1, false);
       const cylinderMaterial = new THREE.MeshPhongMaterial({ 
@@ -424,35 +445,34 @@
       iconSprite.position.set(0, 0, 3);
       iconSprite.scale.set(3, 3, 1);
 
-      // 3. 数据数值
-      const valueCanvas = document.createElement('canvas');
-      valueCanvas.width = 128; valueCanvas.height = 40;
-      const valueCtx = valueCanvas.getContext('2d');
-      valueCtx.font = 'bold 28px Arial';
-      valueCtx.textAlign = 'center';
-      valueCtx.textBaseline = 'middle';
-      valueCtx.fillStyle = '#fff';
-      valueCtx.fillText(moduleData[i].value, 64, 20);
-      const valueTexture = new THREE.CanvasTexture(valueCanvas);
-      const valueMaterial = new THREE.SpriteMaterial({ map: valueTexture, transparent: true });
-      const valueSprite = new THREE.Sprite(valueMaterial);
-      valueSprite.position.set(0, 0, 5);
-      valueSprite.scale.set(5, 1.5, 1);
+      // 1. 创建 canvas
+      const labelCanvas = document.createElement('canvas');
+      labelCanvas.width = 128;
+      labelCanvas.height = 70;
+      const labelCtx = labelCanvas.getContext('2d');
+      // 2. 画圆角背景
+      drawRoundRect(labelCtx, 0, 0, 128, 70, 16, 'rgba(51,153,255,0.18)');
 
-      // 4. 标题
-      const titleCanvas = document.createElement('canvas');
-      titleCanvas.width = 128; titleCanvas.height = 40;
-      const titleCtx = titleCanvas.getContext('2d');
-      titleCtx.font = 'bold 22px Arial';
-      titleCtx.textAlign = 'center';
-      titleCtx.textBaseline = 'middle';
-      titleCtx.fillStyle = '#3399ff';
-      titleCtx.fillText(moduleData[i].title, 64, 20);
-      const titleTexture = new THREE.CanvasTexture(titleCanvas);
-      const titleMaterial = new THREE.SpriteMaterial({ map: titleTexture, transparent: true });
-      const titleSprite = new THREE.Sprite(titleMaterial);
-      titleSprite.position.set(0, 0, 7);
-      titleSprite.scale.set(5, 1.5, 1);
+      // 3. 画 value（数值，居中偏下）
+      labelCtx.font = 'bold 28px Arial';
+      labelCtx.textAlign = 'center';
+      labelCtx.textBaseline = 'middle';
+      labelCtx.fillStyle = '#fff';
+      labelCtx.fillText(moduleData[i].value, 64, 40); // y=40
+
+      // 4. 画 title（项目数据，居中偏上）
+      labelCtx.font = 'bold 20px Arial';
+      labelCtx.fillStyle = '#1a1a1f';
+      labelCtx.fillText(moduleData[i].title, 64, 20); // y=20
+
+      // 5. 创建 sprite
+      const labelTexture = new THREE.CanvasTexture(labelCanvas);
+      const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture, transparent: true });
+      const labelSprite = new THREE.Sprite(labelMaterial);
+      labelSprite.position.set(0, 0, 5.5);
+      labelSprite.scale.set(5, 2.5, 1);   
+      // 6. 添加到 moduleGroup
+      moduleGroup.add(labelSprite);
 
       // 5. 数据在圆柱体正前方
       const dataCanvas = document.createElement('canvas');
@@ -466,10 +486,6 @@
       const dataTexture = new THREE.CanvasTexture(dataCanvas);
       const dataMaterial = new THREE.SpriteMaterial({ map: dataTexture, transparent: true });
       const dataSprite = new THREE.Sprite(dataMaterial);
-      // 圆柱体正前方（x, y, z+1.5），再往外偏移
-      const frontX = Math.cos(angle) * (radius + 3.5);
-      const frontY = Math.sin(angle) * (radius + 3.5);
-      dataSprite.position.set(frontX, frontY, z + 1.5);
       dataSprite.scale.set(5, 1.5, 1);
 
       // 6. 虚线连接线
@@ -490,20 +506,20 @@
       group.add(line); // 让线跟随整体旋转
       // group.add(line);
       // 将所有元素添加到模块组
-      moduleGroup.add(cylinder, iconSprite, valueSprite, titleSprite);
+      moduleGroup.add(cylinder, iconSprite);
       // 创建一个容器组来保持方向
       const containerGroup = new THREE.Group();
       containerGroup.add(moduleGroup);
       
       // 将容器组添加到主组
       group.add(containerGroup);
+      const interactives = [cylinder, iconSprite, labelSprite];
       // 更新模块数组
       modules.push({ 
         containerGroup,
         cylinder, 
-        iconSprite, 
-        valueSprite, 
-        titleSprite,
+        iconSprite,
+        interactives,
         angle 
       });
     }
@@ -549,25 +565,28 @@
       raycaster.setFromCamera(mouse, camera);
       
       // 获取所有可能被点击的对象
-      const intersectObjects = modules.map(m => m.cylinder);
+      const intersectObjects = modules.flatMap(m => m.interactives);
       const intersects = raycaster.intersectObjects(intersectObjects);
       // const intersects = raycaster.intersectObjects(modules);
       if (intersects.length > 0) {
         autoRotate = false;
-        // const moduleIndex = modules.indexOf(intersects[0].object);
-        // 找到被点击的圆柱体对应的模块索引
-        const cylinderIndex = intersectObjects.indexOf(intersects[0].object);
-        popup.style.display = 'block';
-        popup.innerHTML = `<b>${moduleData[cylinderIndex].title}</b><br>数值：${moduleData[cylinderIndex].value}<br>${moduleData[cylinderIndex].desc}`;
-        // popup.innerHTML = `<b>${moduleData[moduleIndex].title}</b><br>数值：${moduleData[moduleIndex].value}<br>${moduleData[moduleIndex].desc}`;
-
-        // 弹窗定位 - 使用clientX/clientY来确保正确的屏幕位置
-        const x = event.clientX;
-        const y = event.clientY;
-        popup.style.left = x + 20 + 'px';
-        popup.style.top = y - 20 + 'px';
+        // 找到被点击的模块索引
+        let moduleIndex = -1;
+        for (let i = 0; i < modules.length; i++) {
+          if (modules[i].interactives.includes(intersects[0].object)) {
+            moduleIndex = i;
+            break;
+          }
+        }
+        if (moduleIndex !== -1) {
+          popup.style.display = 'block';
+          popup.innerHTML = `<b>${moduleData[moduleIndex].title}</b><br>数值：${moduleData[moduleIndex].value}<br>${moduleData[moduleIndex].desc}`;
+          const x = event.clientX;
+          const y = event.clientY;
+          popup.style.left = x + 20 + 'px';
+          popup.style.top = y - 20 + 'px';
+        }
       } else {
-        // 恢复自动旋转
         autoRotate = true;
         popup.style.display = 'none';
       }
