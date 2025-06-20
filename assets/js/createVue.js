@@ -229,34 +229,23 @@ new Vue({
             userInteracting: false, // 用户是否正在交互 (鼠标悬停在图表上)
             highlightedIndex: 0, // 当前高亮的项目索引
 
-            // 弹出框状态和内容
-            popupVisible: false,
-            popupStyle: {
-                left: '0px',
-                top: '0px',
-                display: 'none', // 默认隐藏，v-if控制显隐，这里只做初始值
-            },
-            popupContent: {
-                title: '',
-                value: '',
-            },
-
-            // 图片资源 (使用 public 目录路径)
-            globeTextureUrl: '/data/globe.gl.bin', // 注意：Vue CLI public 目录直接用 / 根路径
-            iconBaseUrl: '/icons/', // 注意：Vue CLI public 目录直接用 / 根路径
-
-            // 外围节点的数据
-            outerNodesData: [
-                { id: 'node0', name: '建筑数据', value: 3009.36, icon: 'house.png', initialAngle: 0 },
-                { id: 'node1', name: '财务数据', value: 3009.36, icon: 'money.png', initialAngle: 45 },
-                { id: 'node2', name: '销售数据', value: 3009.36, icon: 'chart.png', initialAngle: 90 },
-                { id: 'node3', name: '银行数据', value: 3009.36, icon: 'bank.png', initialAngle: 135 },
-                { id: 'node4', name: '电力数据', value: 3009.36, icon: 'lightning.png', initialAngle: 180 },
-                { id: 'node5', name: '存储数据', value: 3009.36, icon: 'database.png', initialAngle: 225 },
-                { id: 'node6', name: '监控数据', value: 3009.36, icon: 'monitor.png', initialAngle: 270 },
-                { id: 'node7', name: '报警数据', value: 3009.36, icon: 'bell.png', initialAngle: 315 },
-            ],
             globeHitRadius: 80, // 鼠标检测地球区域的半径
+            optionPie3d: {},
+            pieData3DCopy: [],
+            pieData3D: [],
+            chart3D: {},
+            data3D: {
+                red: 717,
+                yellow: 30,
+                blue: 83,
+                notPresent: 56194,
+                redPercent: "1.26",
+                yellowPercent: "0.05",
+                bluePercent: "0.15",
+                notPresPercent: "98.54",
+                customerTotal: 57024,
+                percentTotal: "100.00",
+            },
         };
     },
     created() {
@@ -381,18 +370,23 @@ new Vue({
                 data: this.productLineData.personProduction,
             }
         ];
+        this.pieData3DCopy = [
+            { value: this.data3D.red, percent: this.data3D.redPercent, img: 'assets/images/screenfull/smoke_red.png', name: '公司金融服务部', itemStyle: { color: '#F3410A', opacity: 0.7 } },
+            { value: this.data3D.yellow, percent: this.data3D.yellowPercent, img: 'assets/images/screenfull/smoke_yellow.png', name: '普惠及乡村振兴金融服务部', itemStyle: { color: '#FFCF37', opacity: 0.7 } },
+            { value: this.data3D.blue, percent: this.data3D.bluePercent, img: 'assets/images/screenfull/smoke_blue.png', name: '零售羚信货部', itemStyle: { color: '#065DFF', opacity: 0.7 } },
+            // { value: this.data3D.notPresent, percent: this.data3D.notPresPercent, img: 'assets/images/screenfull/smoke_green.png', name: '', itemStyle: { color: '#46DADB', opacity: 0.7 } },
+        ];
+        this.pieData3D = JSON.parse(JSON.stringify(this.pieData3DCopy));
     },
     mounted() {
         // this.initChart(this.mapData1);
         this.initOrgLineEcharts(this.xData, this.yData);
-        this.initStripLineEcharts(this.xData);
+        // this.initStripLineEcharts(this.xData);
         this.initProductLineEcharts(this.productLineData.DATADATE);
         this.initCustomerLineEcharts(this.customerData.DATADATE, this.customerData.RATE);
         this.initCustomerDistributeEcharts(this.customerDistributeData);
         this.initProductDistributeEcharts(this.customerDistributeDataCopy);
-        // this.initThree();
-        // this.initRorateChart();
-        // this.startAutoCycle(); // 启动项目数据自动切换
+        this.initPie3d();
         // window.addEventListener('resize', this.handleResize); // 监听窗口 resize
     },
     beforeDestroy() {
@@ -403,570 +397,257 @@ new Vue({
         window.removeEventListener('resize', this.handleResize); // 移除监听
     },
     methods: {
-        handleResize() {
-            if (this.myChart) {
-                this.myChart.resize();
-                this.updateChartOptionsForPosition(); // 尺寸变化后，重新计算位置并更新
-            }
+        /**
+         * @author wzheng
+         * @date 2025年6月20日21:01:56
+         * @description 初始化3d饼图
+         * @returns 
+         */
+        initPie3d() {
+            this.chart3D = echarts.init(document.getElementById("stripLineEcharts"));
+            this.optionPie3d = this.getPie3D(
+                this.pieData3D,
+                0.59    // 可做为调整内环大小
+            );
+            this.chart3D.setOption(this.optionPie3d, true);
         },
-        initRorateChart() {
-            const chartDom = document.getElementById('globe-chart'); // 或者使用 this.$refs.globeChartContainer.querySelector('#globe-chart')
-            if (!chartDom) {
-                console.error('ECharts DOM element (#globe-chart) not found!');
-                return;
+        /**
+         * @author wzheng
+         * @date 2025年6月20日21:03:01
+         * @description 生成扇形的曲面参数方程
+         * @returns 
+         */
+        getParametricEquation(startRatio, endRatio, isSelected, isHovered, k, h) {
+            // 计算
+            const midRatio = (startRatio + endRatio) / 2;
+
+            const startRadian = startRatio * Math.PI * 2;
+            const endRadian = endRatio * Math.PI * 2;
+            const midRadian = midRatio * Math.PI * 2;
+
+            // 如果只有一个扇形，则不实现选中效果。
+            if (startRatio === 0 && endRatio === 1) {
+                // eslint-disable-next-line no-param-reassign
+                isSelected = false;
             }
 
-            this.myChart = echarts.init(chartDom);
-            // 初始化时设置选项
-            this.updateChartOptionsForPosition();
+            // 通过扇形内径/外径的值，换算出辅助参数 k（默认值 1/3）
+            // eslint-disable-next-line no-param-reassign
+            k = typeof k !== 'undefined' ? k : 1 / 3;
 
-            // ------------- 鼠标事件监听 -------------
-            this.myChart.on('mousemove', (params) => {
-                this.userInteracting = true; // 用户正在交互
-                const chartInstance = this.myChart;
-                const pointInPixel = [params.event.offsetX, params.event.offsetY];
-                const chartWidth = chartDom.offsetWidth;
-                const chartHeight = chartDom.offsetHeight;
-                const chartCenter = [chartWidth / 2, chartHeight / 2];
-                // this.globeHitRadius = 80; // 用于鼠标检测地球区域的半径
+            // 计算选中效果分别在 x 轴、y 轴方向上的位移（未选中，则位移均为 0）
+            const offsetX = isSelected ? Math.cos(midRadian) * 0.1 : 0;
+            const offsetY = isSelected ? Math.sin(midRadian) * 0.1 : 0;
 
-                // 1. 判断是否悬停在地球上
-                const distanceToGlobeCenter = Math.sqrt(
-                    Math.pow(pointInPixel[0] - chartCenter[0], 2) +
-                    Math.pow(pointInPixel[1] - chartCenter[1], 2)
-                );
+            // 计算高亮效果的放大比例（未高亮，则比例为 1）
+            const hoverRate = isHovered ? 1.05 : 1;  // 可以做为调整外环大小
 
-                if (distanceToGlobeCenter <= this.globeHitRadius) {
-                    this.pauseAutoCycle(); // 暂停项目数据切换
-                    this.setGlobeAutoRotate(false); // 停止地球旋转
-                    this.showPopup(pointInPixel[0] + 15, pointInPixel[1] + 15, '全球数据', '点击查看详情');
-                    return;
-                }
-
-                // 2. 判断是否悬停在某个自定义节点上
-                let hoveredNodeInfo = null;
-                if (params.componentType === 'series' && params.seriesType === 'custom' && params.target && params.target.info) {
-                    hoveredNodeInfo = params.target.info.originalData;
-                    if (hoveredNodeInfo) {
-                        this.pauseAutoCycle();
-                        this.setGlobeAutoRotate(false);
-                        this.showPopup(pointInPixel[0] + 15, pointInPixel[1] + 15, hoveredNodeInfo.name, hoveredNodeInfo.value.toFixed(2));
-                        return;
-                    }
-                }
-
-                // 3. 鼠标不在地球上，也不在任何节点上
-                this.resumeAutoCycleWithDelay();
-                this.setGlobeAutoRotate(true);
-                this.hidePopup();
-            });
-
-            // 鼠标离开整个图表区域时，恢复旋转并隐藏弹出框
-            chartDom.addEventListener('mouseleave', () => {
-                this.userInteracting = false;
-                this.resumeAutoCycleWithDelay();
-                this.setGlobeAutoRotate(true);
-                this.hidePopup();
-            });
-
-            // ECharts 点击事件 (可选，用于处理点击详情)
-            this.myChart.on('click', (params) => {
-                if (params.componentType === 'graphic' && params.info && params.info.type === 'globe') {
-                    console.log('点击了地球');
-                } else if (params.componentType === 'series' && params.seriesType === 'custom' && params.target && params.target.info) {
-                    const clickedNode = params.target.info.originalData;
-                    console.log('点击了项目数据框：', clickedNode.name);
-                }
-            });
-        },
-
-        // 封装更新图表选项的方法，便于 resize 和初始加载时调用
-        updateChartOptionsForPosition() {
-            const chartDom = document.getElementById('globe-chart');
-            if (!chartDom || !this.myChart) {
-                return;
-            }
-            const chartWidth = chartDom.offsetWidth;
-            const chartHeight = chartDom.offsetHeight;
-            const chartCenter = [chartWidth / 2, chartHeight / 2];
-            const nodeNormalRadius = Math.min(chartWidth, chartHeight) * 0.35;
-            const nodeHighlightPosition = [chartCenter[0], chartHeight - 120];
-
-            // custom series 的 renderItem 函数
-            // 注意：这里使用箭头函数或 bind(this) 来确保能访问 Vue 组件的 this
-            const renderOuterNodeItem = (params, api) => {
-                const dataIndex = params.dataIndex;
-                const item = this.outerNodesData[dataIndex];
-                const isHighlighted = (dataIndex === this.highlightedIndex);
-
-                let currentPosition;
-                if (isHighlighted) {
-                    currentPosition = nodeHighlightPosition;
-                } else {
-                    const numNodes = this.outerNodesData.length;
-                    const angleOffsetPerItem = 360 / numNodes;
-                    const currentHighlightedAngle = this.outerNodesData[this.highlightedIndex].initialAngle;
-
-                    let relativeIndex = dataIndex - this.highlightedIndex;
-                    if (relativeIndex < 0) {
-                        relativeIndex += numNodes;
-                    }
-
-                    const dynamicAngle = (currentHighlightedAngle + (relativeIndex * angleOffsetPerItem)) % 360;
-                    // 辅助函数，获取圆周位置
-                    const getNormalNodePosition = (angle) => {
-                        const rad = angle * Math.PI / 180;
-                        return [
-                            chartCenter[0] + nodeNormalRadius * Math.cos(rad),
-                            chartCenter[1] + nodeNormalRadius * Math.sin(rad)
-                        ];
-                    };
-                    currentPosition = getNormalNodePosition(dynamicAngle);
-                }
-
-                const group = {
-                    type: 'group',
-                    children: [],
-                    info: {
-                        dataIndex: dataIndex,
-                        originalData: item
-                    }
-                };
-
-                // ------------- 绘制连接线 -------------
-                group.children.push({
-                    type: 'line',
-                    shape: {
-                        x1: chartCenter[0],
-                        y1: chartCenter[1],
-                        x2: currentPosition[0],
-                        y2: currentPosition[1]
-                    },
-                    style: {
-                        stroke: isHighlighted ? 'rgba(0, 255, 255, 0.8)' : 'rgba(0, 191, 255, 0.3)',
-                        lineWidth: isHighlighted ? 2 : 1,
-                        lineDash: [5, 5]
-                    },
-                    z: 0,
-                    transition: ['shape.x2', 'shape.y2', 'style.stroke', 'style.lineWidth']
-                });
-
-                // ------------- 绘制项目数据框 (模拟立体感和玻璃效果) -------------
-                const nodeBgWidth = isHighlighted ? 180 : 120;
-                const nodeBgHeight = isHighlighted ? 150 : 100;
-                const baseRadius = isHighlighted ? 15 : 10;
-
-                // 1. 底部椭圆阴影 (模拟投影，增加浮空感)
-                group.children.push({
-                    type: 'ellipse',
-                    shape: {
-                        cx: currentPosition[0],
-                        cy: currentPosition[1] + nodeBgHeight / 2 + (isHighlighted ? 20 : 8),
-                        rx: nodeBgWidth * (isHighlighted ? 0.4 : 0.3),
-                        ry: nodeBgHeight * (isHighlighted ? 0.15 : 0.1)
-                    },
-                    style: {
-                        fill: 'rgba(0, 0, 0, 0.3)',
-                        shadowBlur: isHighlighted ? 25 : 10,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)',
-                        shadowOffsetY: isHighlighted ? 10 : 5
-                    },
-                    z: 0.5,
-                    transition: ['shape', 'style']
-                });
-
-                // 2. 主体矩形背景 (带渐变和光晕)
-                group.children.push({
-                    type: 'rect',
-                    shape: {
-                        x: currentPosition[0] - nodeBgWidth / 2,
-                        y: currentPosition[1] - nodeBgHeight / 2,
-                        width: nodeBgWidth,
-                        height: nodeBgHeight,
-                        r: baseRadius
-                    },
-                    style: {
-                        fill: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: isHighlighted ? 'rgba(0, 191, 255, 0.3)' : 'rgba(0, 191, 255, 0.1)' },
-                            { offset: 1, color: isHighlighted ? 'rgba(0, 100, 200, 0.7)' : 'rgba(0, 100, 200, 0.4)' }
-                        ]),
-                        stroke: isHighlighted ? 'rgba(0, 255, 255, 0.8)' : 'rgba(0, 191, 255, 0.5)',
-                        lineWidth: isHighlighted ? 3 : 2,
-                        shadowBlur: isHighlighted ? 20 : 10,
-                        shadowColor: isHighlighted ? 'rgba(0, 255, 255, 0.9)' : 'rgba(0, 191, 255, 0.7)',
-                        shadowOffsetY: 0
-                    },
-                    z: 1,
-                    transition: ['shape', 'style']
-                });
-
-                // 3. 图标
-                const iconSize = isHighlighted ? 60 : 40;
-                group.children.push({
-                    type: 'image',
-                    style: {
-                        image: `${this.iconBaseUrl}${item.icon}`, // 使用 Vue 组件的 this.iconBaseUrl
-                        x: currentPosition[0] - iconSize / 2,
-                        y: currentPosition[1] - nodeBgHeight / 2 + (isHighlighted ? 15 : 10),
-                        width: iconSize,
-                        height: iconSize
-                    },
-                    z: 2,
-                    transition: ['style.x', 'style.y', 'style.width', 'style.height']
-                });
-
-                // 4. "数据数据" 文本
-                group.children.push({
-                    type: 'text',
-                    style: {
-                        text: item.name,
-                        x: currentPosition[0],
-                        y: currentPosition[1] + (isHighlighted ? 35 : 15),
-                        textAlign: 'center',
-                        textVerticalAlign: 'middle',
-                        fill: '#fff',
-                        fontSize: isHighlighted ? 18 : 14,
-                        fontWeight: isHighlighted ? 'bold' : 'normal'
-                    },
-                    z: 2,
-                    transition: ['style.x', 'style.y', 'style.fontSize']
-                });
-
-                // 5. 数据值 "3009.36"
-                group.children.push({
-                    type: 'text',
-                    style: {
-                        text: item.value.toFixed(2),
-                        x: currentPosition[0],
-                        y: currentPosition[1] + (isHighlighted ? 60 : 35),
-                        textAlign: 'center',
-                        textVerticalAlign: 'middle',
-                        fill: '#00ffff',
-                        fontSize: isHighlighted ? 24 : 18,
-                        fontWeight: 'bolder'
-                    },
-                    z: 2,
-                    transition: ['style.x', 'style.y', 'style.fontSize']
-                });
-
-                // 6. "项目数据" 按钮样式文字
-                const buttonWidth = isHighlighted ? 140 : 100;
-                const buttonHeight = isHighlighted ? 40 : 30;
-                const buttonRadius = isHighlighted ? 20 : 15;
-                group.children.push({
-                    type: 'rect',
-                    shape: {
-                        x: currentPosition[0] - buttonWidth / 2,
-                        y: currentPosition[1] + nodeBgHeight / 2 - (isHighlighted ? 10 : 0) - buttonHeight,
-                        width: buttonWidth,
-                        height: buttonHeight,
-                        r: buttonRadius
-                    },
-                    style: {
-                        fill: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                            { offset: 0, color: 'rgba(0, 191, 255, 0.7)' },
-                            { offset: 1, color: 'rgba(0, 100, 200, 0.7)' }
-                        ]),
-                        stroke: 'rgba(0, 191, 255, 1)',
-                        lineWidth: 1,
-                        shadowBlur: 5,
-                        shadowColor: 'rgba(0, 191, 255, 0.5)',
-                        shadowOffsetY: 2
-                    },
-                    z: 2,
-                    transition: ['shape', 'style']
-                });
-                group.children.push({
-                    type: 'text',
-                    style: {
-                        text: '项目数据',
-                        x: currentPosition[0],
-                        y: currentPosition[1] + nodeBgHeight / 2 - (isHighlighted ? 10 : 0) - buttonHeight / 2,
-                        textAlign: 'center',
-                        textVerticalAlign: 'middle',
-                        fill: '#fff',
-                        fontSize: isHighlighted ? 16 : 14
-                    },
-                    z: 3,
-                    transition: ['style.x', 'style.y', 'style.fontSize']
-                });
-
-                // 7. 透明的点击区域 (覆盖整个数据框，用于捕获鼠标事件)
-                group.children.push({
-                    type: 'rect',
-                    shape: {
-                        x: currentPosition[0] - nodeBgWidth / 2,
-                        y: currentPosition[1] - nodeBgHeight / 2,
-                        width: nodeBgWidth,
-                        height: nodeBgHeight
-                    },
-                    style: {
-                        fill: 'transparent'
-                    },
-                    z: 4,
-                    silent: false,
-                    transition: ['shape']
-                });
-
-                return group;
-            };
-
-            const option = {
-                backgroundColor: '#0c2447',
-
-                animationDuration: 1000,
-                animationEasing: 'cubicInOut',
-
-                graphic: [
-                    // 顶部标题
-                    {
-                        type: 'text',
-                        style: {
-                            text: 'XXX年 建设的数字化转型',
-                            x: chartCenter[0],
-                            y: 50,
-                            textAlign: 'center',
-                            fill: '#fff',
-                            fontSize: 24,
-                            fontWeight: 'bold'
-                        },
-                        z: 10
-                    },
-                    // 中心百分比
-                    {
-                        type: 'text',
-                        style: {
-                            text: '32%',
-                            x: chartCenter[0],
-                            y: chartCenter[1] - 15,
-                            textAlign: 'center',
-                            textVerticalAlign: 'middle',
-                            fill: '#fff',
-                            fontSize: 40,
-                            fontWeight: 'bold'
-                        },
-                        z: 10
-                    },
-                    // 中心“项目数”文字
-                    {
-                        type: 'text',
-                        style: {
-                            text: '项目数',
-                            x: chartCenter[0],
-                            y: chartCenter[1] + 20,
-                            textAlign: 'center',
-                            textVerticalAlign: 'middle',
-                            fill: '#eee',
-                            fontSize: 18
-                        },
-                        z: 10
-                    },
-                    // 中心环形“道路”背景 (模拟立体感，可以画多个环)
-                    {
-                        type: 'arc',
-                        shape: {
-                            cx: chartCenter[0],
-                            cy: chartCenter[1],
-                            r: nodeNormalRadius - 50,
-                            r0: nodeNormalRadius + 50,
-                            startAngle: 0,
-                            endAngle: Math.PI * 2
-                        },
-                        style: {
-                            fill: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                                { offset: 0, color: 'rgba(255, 255, 255, 0.05)' },
-                                { offset: 0.5, color: 'rgba(0, 191, 255, 0.1)' },
-                                { offset: 1, color: 'rgba(255, 255, 255, 0.05)' }
-                            ]),
-                            stroke: 'rgba(0, 191, 255, 0.2)',
-                            lineWidth: 1
-                        },
-                        z: 0
-                    },
-                    // 内环（靠近地球的环）
-                    {
-                        type: 'circle',
-                        shape: {
-                            cx: chartCenter[0],
-                            cy: chartCenter[1],
-                            r: 100
-                        },
-                        style: {
-                            fill: 'rgba(255, 255, 255, 0.1)',
-                            stroke: 'rgba(0, 191, 255, 0.3)',
-                            lineWidth: 2,
-                            shadowBlur: 10,
-                            shadowColor: 'rgba(0, 191, 255, 0.5)',
-                            shadowOffsetY: 0
-                        },
-                        z: 0.1
-                    },
-                    // 最中心的小环 (模拟地球底座的光环)
-                    {
-                        type: 'circle',
-                        shape: {
-                            cx: chartCenter[0],
-                            cy: chartCenter[1],
-                            r: 60
-                        },
-                        style: {
-                            fill: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
-                                { offset: 0, color: 'rgba(0, 255, 255, 0.5)' },
-                                { offset: 1, color: 'rgba(0, 191, 255, 0)' }
-                            ]),
-                            shadowBlur: 20,
-                            shadowColor: 'rgba(0, 255, 255, 0.7)'
-                        },
-                        z: 0.2
-                    },
-                    // 为地球添加一个透明可点击区域 (用于捕获地球鼠标事件)
-                    {
-                        type: 'circle',
-                        shape: {
-                            cx: chartCenter[0],
-                            cy: chartCenter[1],
-                            r: this.globeHitRadius
-                        },
-                        style: {
-                            fill: 'transparent'
-                        },
-                        z: 5,
-                        silent: false,
-                        info: { type: 'globe' }
-                    }
-                ],
-
-                globe: {
-                    baseTexture: this.globeTextureUrl,
-                    environment: '#0c2447',
-                    light: {
-                        main: { color: '#fff', intensity: 1.5, shadow: true, alpha: 40, beta: 0 },
-                        ambient: { intensity: 0.2 }
-                    },
-                    shading: 'realistic',
-                    realisticMaterial: { roughness: 0.9, metalness: 0 },
-                    viewControl: {
-                        autoRotate: this.isGlobeAutoRotating,
-                        autoRotateDirection: 'right',
-                        autoRotateSpeed: 5,
-                        autoRotateAfterStill: 3000,
-                        damping: 0.8,
-                        zoomSensitivity: 0,
-                        rotateSensitivity: 0,
-                        panSensitivity: 0,
-                        distance: 200,
-                        alpha: 25,
-                        beta: 15
-                    },
-                    postEffect: {
-                        enable: true,
-                        SSAO: { enable: true, intensity: 1, radius: 2 }
-                    },
-                    groundPlane: { show: false },
-                    silent: true
+            // 返回曲面参数方程
+            return {
+                u: {
+                    min: -Math.PI,
+                    max: Math.PI * 3,
+                    step: Math.PI / 32,
                 },
 
-                series: [
-                    {
-                        type: 'custom',
-                        coordinateSystem: 'none',
-                        renderItem: renderOuterNodeItem.bind(this), // 关键：绑定 this
-                        data: this.outerNodesData.map((item, index) => ({
-                            value: [index, item.value],
-                            ...item
-                        }))
+                v: {
+                    min: 0,
+                    max: Math.PI * 2,
+                    step: Math.PI / 20,
+                },
+
+                x(u, v) {
+                    if (u < startRadian) {
+                        return offsetX + Math.cos(startRadian) * (1 + Math.cos(v) * k) * hoverRate;
                     }
-                ]
+                    if (u > endRadian) {
+                        return offsetX + Math.cos(endRadian) * (1 + Math.cos(v) * k) * hoverRate;
+                    }
+                    return offsetX + Math.cos(u) * (1 + Math.cos(v) * k) * hoverRate;
+                },
+
+                y(u, v) {
+                    if (u < startRadian) {
+                        return offsetY + Math.sin(startRadian) * (1 + Math.cos(v) * k) * hoverRate;
+                    }
+                    if (u > endRadian) {
+                        return offsetY + Math.sin(endRadian) * (1 + Math.cos(v) * k) * hoverRate;
+                    }
+                    return offsetY + Math.sin(u) * (1 + Math.cos(v) * k) * hoverRate;
+                },
+
+                z(u, v) {
+                    if (u < -Math.PI * 0.5) {
+                        return Math.sin(u);
+                    }
+                    if (u > Math.PI * 2.5) {
+                        return Math.sin(u) * h * 0.1;
+                    }
+                    // 当前图形的高度是Z根据h（每个value的值决定的）
+                    return Math.sin(v) > 0 ? 1 * h * 0.1 : -1;
+                },
             };
-
-            this.myChart.setOption(option);
         },
+        /**
+         * @author wzheng
+         * @date 22025年6月20日21:04:36
+         * @description 生成模拟 3D 饼图的配置项
+         * @returns 
+         */
+        getPie3D(pieData, internalDiameterRatio) {
+            const series = [];
+            // 总和
+            let sumValue = 0;
+            let startValue = 0;
+            let endValue = 0;
+            const legendData = [];
+            const k =
+                typeof internalDiameterRatio !== 'undefined'
+                    ? (1 - internalDiameterRatio) / (1 + internalDiameterRatio)
+                    : 1 / 3;
 
-        startAutoCycle() {
-            clearInterval(this.autoCycleInterval);
-            this.autoCycleInterval = setInterval(() => {
-                if (!this.userInteracting) {
-                    this.highlightedIndex = (this.highlightedIndex + 1) % this.outerNodesData.length;
-                    this.updateChartDataAndRender(); // 更新数据并重新渲染
+            // 为每一个饼图数据，生成一个 series-surface 配置
+            for (let i = 0; i < pieData.length; i += 1) {
+                sumValue += pieData[i].value;
+
+                const seriesItem = {
+                    name: typeof pieData[i].name === 'undefined' ? `series${i}` : pieData[i].name,
+                    type: 'surface',
+                    parametric: true,
+                    wireframe: {
+                        show: false,
+                    },
+                    pieData: pieData[i],
+                    pieStatus: {
+                        selected: false,
+                        hovered: false,
+                        k,
+                    },
+                    itemStyle: {}
+                };
+
+                if (typeof pieData[i].itemStyle !== 'undefined') {
+                    const { itemStyle } = pieData[i];
+
+                    // eslint-disable-next-line no-unused-expressions
+                    typeof pieData[i].itemStyle.color !== 'undefined' ? (itemStyle.color = pieData[i].itemStyle.color) : null;
+                    // eslint-disable-next-line no-unused-expressions
+                    typeof pieData[i].itemStyle.opacity !== 'undefined'
+                        ? (itemStyle.opacity = pieData[i].itemStyle.opacity)
+                        : null;
+
+                    seriesItem.itemStyle = itemStyle;
                 }
-            }, 3000);
-        },
-
-        pauseAutoCycle() {
-            clearInterval(this.autoCycleInterval);
-        },
-
-        resumeAutoCycleWithDelay() {
-            this.pauseAutoCycle();
-            setTimeout(() => {
-                if (!this.userInteracting) {
-                    this.startAutoCycle();
-                }
-            }, 500);
-        },
-
-        setGlobeAutoRotate(rotate) {
-            if (this.myChart && this.isGlobeAutoRotating !== rotate) {
-                this.myChart.setOption({
-                    globe: {
-                        viewControl: {
-                            autoRotate: rotate
-                        }
-                    }
-                });
-                this.isGlobeAutoRotating = rotate;
+                series.push(seriesItem);
             }
-        },
+            // 向每个 series-surface 传入不同的参数方程 series-surface.parametricEquation，也就是实现每一个扇形。
+            console.log('series');
+            console.log(series);
+            for (let i = 0; i < series.length; i += 1) {
+                endValue = startValue + series[i].pieData.value;
 
-        showPopup(x, y, title, value) {
-            this.popupVisible = true;
-            // 弹出框位置相对于 chartDom
-            const chartContainerRect = this.$refs.globeChartContainer.getBoundingClientRect();
-            this.popupStyle.left = `${x + chartContainerRect.left}px`;
-            this.popupStyle.top = `${y + chartContainerRect.top}px`;
-            this.popupContent.title = title;
-            this.popupContent.value = value;
-        },
+                series[i].pieData.startRatio = startValue / sumValue;
+                series[i].pieData.endRatio = endValue / sumValue;
+                series[i].parametricEquation = this.getParametricEquation(
+                    series[i].pieData.startRatio,
+                    series[i].pieData.endRatio,
+                    false,
+                    false,
+                    k,
+                    // 我这里做了一个处理，使除了第一个之外的值都是10
+                    series[i].pieData.value === series[0].pieData.value ? 35 : 10
+                );
 
-        hidePopup() {
-            this.popupVisible = false;
-        },
+                startValue = endValue;
 
-        // 封装数据更新和渲染
-        updateChartDataAndRender() {
-            this.myChart?.setOption({
-                series: [{
-                    type: 'custom',
-                    // renderItem 保持不变，它已经绑定了 this
-                    data: this.outerNodesData.map((item, index) => ({
-                        value: [index, item.value],
-                        ...item
-                    }))
-                }]
-            }, {
-                notMerge: false,
-                lazyUpdate: false
-            });
-        },
-
-        // 手动切换上一个项目
-        prevItem() {
-            this.userInteracting = true;
-            this.pauseAutoCycle();
-            this.setGlobeAutoRotate(false);
-            this.highlightedIndex = (this.highlightedIndex - 1 + this.outerNodesData.length) % this.outerNodesData.length;
-            this.updateChartDataAndRender();
-            this.resumeAutoCycleWithDelay();
-        },
-
-        // 手动切换下一个项目
-        nextItem() {
-            this.userInteracting = true;
-            this.pauseAutoCycle();
-            this.setGlobeAutoRotate(false);
-            this.highlightedIndex = (this.highlightedIndex + 1) % this.outerNodesData.length;
-            this.updateChartDataAndRender();
-            this.resumeAutoCycleWithDelay();
+                legendData.push(series[i].name);
+            }
+            // let boxHeight = this.getHeight3D(series)
+            // 准备待返回的配置项，把准备好的 legendData、series 传入。
+            const option = {
+                legend: {
+                    // show: true,
+                    show: false,
+                    x: 'center',
+                    y: '90%',
+                    icon: 'circle',
+                    width: 10,
+                    height: 10,
+                    orient: 'vertical',
+                    textStyle: {
+                        color: '#fff'
+                    },
+                },
+                title: {
+                    text: '',
+                    x: 'center',
+                    top: 96,
+                    textStyle: {
+                        color: '#fff',
+                        fontSize: 14,
+                    }
+                },
+                animation: false,
+                tooltip: {
+                    formatter: (params) => {
+                        if (params.seriesName !== 'mouseoutSeries') {
+                            return `${params.seriesName
+                                }<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${params.color
+                                };"></span>风险收益水平:${option.series[params.seriesIndex].pieData.percent}%`;
+                        }
+                        return '';
+                    },
+                },
+                xAxis3D: {
+                    min: -1,
+                    max: 1,
+                },
+                yAxis3D: {
+                    min: -1,
+                    max: 1,
+                },
+                zAxis3D: {
+                    min: -1,
+                    max: 1,
+                },
+                grid3D: {
+                    show: false,
+                    boxHeight: 6,
+                    // boxHeight: boxHeight,
+                    top: '-8%',
+                    // top: 2,
+                    viewControl: {
+                        // 3d效果可以放大、旋转等，请自己去查看官方配置
+                        alpha: 25, // 旋转角度
+                        // beta: 30,
+                        rotateSensitivity: 1,
+                        zoomSensitivity: 0,
+                        panSensitivity: 0,
+                        // autoRotate: true,
+                        // distance: 300,
+                        distance: 140, // 图表大小
+                    },
+                    // 后处理特效可以为画面添加高光、景深、环境光遮蔽（SSAO）、调色等效果。可以让整个画面更富有质感。
+                    postEffect: {
+                        // 配置这项会出现锯齿，请自己去查看官方配置有办法解决
+                        enable: false,
+                        bloom: {
+                            enable: true,
+                            bloomIntensity: 0.1,
+                        },
+                        SSAO: {
+                            enable: true,
+                            quality: 'medium',
+                            radius: 2,
+                        },
+                        // temporalSuperSampling: {
+                        //   enable: true,
+                        // },
+                    },
+                },
+                series,
+            };
+            return option;
         },
         /**
          * @author wzheng
@@ -1986,92 +1667,29 @@ new Vue({
                 document.getElementById("stripLineEcharts")
             );
             this.stripLineOption = {
-                grid: {
-                    left: "2%",
-                    right: "4%",
-                    bottom: 14,
-                    top: "15%",
-                    containLabel: true,
-                },
                 tooltip: {
-                    trigger: "axis",
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} : {c} ({d}%)'
                 },
                 legend: {
-                    show: true,
-                    data: ['公司金融服务部', '普惠及乡村振兴金融服务部', '零售羚信货部', '合计'],
-                    textStyle: {
-                        color: "#868686",
-                        fontSize: 10,
-                    },
-                    x: "center",
-                    y: "bottom",
-                    // bottom: 10,
+                    data: ['公司金融服务部', '普惠及乡村振兴金融服务部', '零售羚信货部'],
+                    left: "center",
                 },
-                series: this.series,
-                xAxis: {
-                    type: "category",
-                    boundaryGap: true,
-                    axisLabel: {
-                        interval: 0,
-                        rotate: 45,
-                        color: "#ffffff",
-                        fontSize: 10,
-                    },
-                    axisTick: {
-                        show: false,
-                    },
-                    axisLine: {
+                series: [{
+                    type: 'pie3D',
+                    radius: '65%',
+                    center: ['50%', '50%'],
+                    selectedMode: 'single',
+                    data: [
+                        { value: 40, name: '公司金融服务部' },
+                        { value: 32, name: '普惠及乡村振兴金融服务部' },
+                        { value: 28, name: '零售羚信货部' }
+                    ],
+                    label: {
                         show: true,
-                        lineStyle: {
-                            color: "#ffffff",
-                            width: 0.5,
-                            type: "solid",
-                        },
-                    },
-                    data: xData,
-                },
-                dataZoom: {
-                    type: "inside",
-                    show: true,
-                    // startValue: xData[xData.length - 6],
-                    // endValue: xData[xData.length - 1],
-                    // maxValueSpan: 0,
-                    // minValueSpan: 5,
-                },
-                yAxis: [
-                    // 左边y轴
-                    {
-                        type: "value",
-                        // name: "单位/个",
-                        nameTextStyle: {
-                            fontSize: 10,
-                            color: "#ffffff",
-                            align: "center",
-                        },
-                        axisLine: {
-                            show: false,
-                        },
-                        axisTick: {
-                            show: false,
-                        },
-                        axisLabel: {
-                            show: true,
-                            interval: "auto",
-                            textStyle: {
-                                color: "#ffffff",
-                                align: "center",
-                            },
-                        },
-                        splitLine: {
-                            show: true,
-                            lineStyle: {
-                                type: "dashed",
-                                color: "#E6F7FF33",
-                                width: 0.5,
-                            },
-                        },
-                    },
-                ],
+                        formatter: '{b}: {d}%'
+                    }
+                }],
             };
             this.stripLineEcharts.setOption(this.stripLineOption, true);
         },

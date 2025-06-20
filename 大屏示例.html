@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-06-20 16:11:40
+ * @LastEditTime: 2025-06-20 17:09:53
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -14,6 +14,7 @@
   <title>大屏示例</title>
   <!-- 引入 ECharts -->
   <script src="assets/js/echarts.min.js"></script>
+  <script src="assets/js/echarts-gl.min.js"></script>
   <script src="assets/js/jquery.js"></script>
   <link rel="stylesheet" type="text/css" href="assets/css/index.css" />
   <script src="assets/js/vue.js"></script>
@@ -52,12 +53,12 @@
             <div class="subtitle-text pointer">条线纬度</div>
             <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
           </div>
-          <div class="button-wrap">
+          <!-- <div class="button-wrap">
             <el-select v-model="valueLine" placeholder="请选择" @change="handleLineChange">
               <el-option v-for="item in optionsLine" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
-          </div>
+          </div> -->
           <div class="customer">
             <div class="card-wrap">
               <div class="card-list mgrt8">
@@ -103,7 +104,7 @@
             </div>
           </div>
         </div>
-        <div class="pie-3d" id="stripLineEcharts"></div>
+        <div class="pie-3d"  id="stripLineEcharts"></div>
         <div class="smoke-trend">
           <div class="subtitle">
             <div class="subtitle-text">机构纬度汇总</div>

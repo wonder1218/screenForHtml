@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 引入ECharts库 -->
+    <script src="assets/js/echarts/echarts.min.js"></script>
+    <!-- 引入3D扩展库 -->
+    <script src="assets/js/echarts-gl.min.js"></script>
+    <style>
+        #chart-container {
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chart-container"></div>
+
+    <script>
+        // 初始化图表
+        const chartDom = document.getElementById('chart-container');
+        const myChart = echarts.init(chartDom);
+
+        // 3D饼图配置
+        const option = {
+            title: {
+                text: '3D饼图示例',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)'
+            },
+            series: [{
+                name: '数据占比',
+                type: 'pie',
+                radius: '60%',        // 饼图半径
+                height: '40%',        // 3D高度
+                startAngle: 45,  // 起始角度
+                endAngle: 315,   // 结束角度
+                // 添加旋转动画
+                animationType: 'scale',
+                animationEasing: 'elasticOut',
+                clockwise: true,  // 顺时针方向
+                data: [
+                    { value: 335, name: '类别A' },
+                    { value: 310, name: '类别B' },
+                    { value: 234, name: '类别C' },
+                    { value: 135, name: '类别D' },
+                    { value: 1548, name: '类别E' }
+                ],
+                itemStyle: {
+                    // 3D阴影效果
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)',
+                    // 3D倾斜效果
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                },
+                // 3D视角配置
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 20,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.8)'
+                    }
+                },
+                label: {
+                    position: 'outside',
+                    formatter: '{b}: {d}%',
+                    // 防止标签重叠
+                    alignTo: 'edge',
+                    margin: 20
+                }
+            },// 底部阴影层
+            {
+                type: 'pie',
+                radius: '60%',
+                height: '5%',  // 更薄的高度
+                data: [
+                    { value: 335, name: '类别A' },
+                    { value: 310, name: '类别B' },
+                    { value: 234, name: '类别C' },
+                    { value: 135, name: '类别D' },
+                    { value: 1548, name: '类别E' }
+                ],
+                itemStyle: {
+                    color: 'rgba(180,180,180,0.3)',
+                    borderWidth: 0
+                },
+                label: { show: false },
+                emphasis: { itemStyle: { opacity: 0 } }
+            }]
+        };
+
+        myChart.setOption(option);
+        window.addEventListener('resize', myChart.resize);
+    </script>
+</body>
+
+</html>
