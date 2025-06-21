@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .top-hint {
+            box-shadow: 0 4px 16px #00cfff55;
+            border: 1px solid #00cfff;
+            font-family: '微软雅黑', Arial, sans-serif;
+            pointer-events: none;
+        }
+    </style>
+    <script src="echarts.min.js"></script>
+    <script src="itcast.js"></script>
+</head>
+
+<body>
+    <div id="timeline-container" style="position:relative;width:100vw;height:400px;">
+        <button id="btn-left" style="position:absolute;left:10px;top:50%;z-index:2;">◀</button>
+        <button id="btn-right" style="position:absolute;right:10px;top:50%;z-index:2;">▶</button>
+        <div id="tooltip"
+            style="display:none;position:absolute;z-index:3;background:rgba(0,0,50,0.8);color:#fff;padding:8px;border-radius:6px;">
+        </div>
+        <div id="top-hints"></div>
+    </div>
+    <script type="module">
+        import * as THREE from './assets/js/three.module.js';
+
+        const container = document.getElementById('timeline-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
+        camera.position.set(0, 0, 100);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(width, height);
+        container.appendChild(renderer.domElement);
+
+        // 时间轴数据
+        const timelineData = [
+            { year: '2015', title: '平台A启动', desc: '详细描述A' },
+            { year: '2016', title: '平台B启动', desc: '详细描述B' },
+            { year: '2017', title: '平台C启动', desc: '详细描述C' },
+            { year: '2018', title: '平台D启动', desc: '详细描述D' },
+            { year: '2019', title: '平台E启动', desc: '详细描述E' },
+            { year: '2020', title: '平台F启动', desc: '详细描述F' },
+            { year: '2021', title: '平台G启动', desc: '详细描述G' },
+            { year: '2022', title: '平台H启动', desc: '详细描述H' },
+            { year: '2023', title: '平台I启动', desc: '详细描述I' },
+            { year: '2024', title: '平台J启动', desc: '详细描述J' },
+            { year: '2025', title: '平台K启动', desc: '详细描述K' },
+            { year: '2026', title: '平台L启动', desc: '详细描述L' },
+            { year: '2027', title: '平台M启动', desc: '详细描述M' },
+            { year: '2028', title: '平台N启动', desc: '详细描述N' },
+            { year: '2029', title: '平台O启动', desc: '详细描述O' }
+        ];
+
+        let page = 0;
+        const pageSize = 6; // 每页显示节点数
+
+        function getPageData() {
+            return timelineData.slice(page * pageSize, (page + 1) * pageSize);
+        }
+
+        // 绘制时间轴
+        let nodes = [];
+        let line;
+        function drawTimeline() {
+            // 清理旧内容
+            nodes.forEach(n => scene.remove(n));
+            if (line) scene.remove(line);
+            nodes = [];
+            document.getElementById('top-hints').innerHTML = ''; // 清空上方提示框
+            const data = getPageData();
+            const nodeGap = 20;
+            const startX = -((data.length - 1) * nodeGap) / 2;
+
+            // 画线
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(startX, 0, 0),
+                new THREE.Vector3(startX + nodeGap * (data.length - 1), 0, 0)
+            ]);
+            line = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0x00cfff }));
+            scene.add(line);
+
+            // 画节点
+            data.forEach((item, i) => {
+                const sphere = new THREE.Mesh(
+                    new THREE.SphereGeometry(1.5, 32, 32),
+                    new THREE.MeshBasicMaterial({ color: 0xffc300 })
+                );
+                sphere.position.set(startX + i * nodeGap, 0, 0);
+                sphere.userData = { ...item, index: i };
+                scene.add(sphere);
+                nodes.push(sphere);
+
+                // 年份标签
+                const canvas = document.createElement('canvas');
+                canvas.width = 128; canvas.height = 32;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#00cfff';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.year, 64, 24);
+                const texture = new THREE.CanvasTexture(canvas);
+                const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
+                label.position.set(sphere.position.x, -6, 0);
+                label.scale.set(10, 2.5, 1);
+                scene.add(label);
+                nodes.push(label);
+                // 上方提示框
+                const hint = document.createElement('div');
+                hint.className = 'top-hint';
+                hint.style.position = 'absolute';
+                hint.style.left = `calc(50% + ${(startX + i * nodeGap) * 5}px)`; // 5为缩放因子，需根据实际调整
+                hint.style.top = '60px';
+                hint.style.transform = 'translateX(-50%)';
+                hint.style.background = 'rgba(0,40,80,0.9)';
+                hint.style.color = '#fff';
+                hint.style.padding = '8px 18px';
+                hint.style.borderRadius = '8px';
+                hint.style.fontWeight = 'bold';
+                hint.style.opacity = '0'; // 初始隐藏
+                hint.style.transition = 'opacity 0.5s, top 0.5s';
+                hint.innerHTML = `<div style="font-size:18px">${item.year}</div><div style="font-size:14px">${item.title}</div>`;
+                document.getElementById('top-hints').appendChild(hint);
+            });
+        }
+        drawTimeline();
+
+        function animateIn() {
+            const hints = document.querySelectorAll('.top-hint');
+            nodes.forEach((node, i) => {
+                node.visible = false; // Three节点初始隐藏
+            });
+
+            let idx = 0;
+            function showNext() {
+                if (idx >= nodes.length / 2) return; // nodes有球和label，除2
+                // 显示Three节点
+                nodes[idx * 2].visible = true; // 球
+                nodes[idx * 2 + 1].visible = true; // label
+                // 显示提示框
+                if (hints[idx]) {
+                    hints[idx].style.opacity = '1';
+                    hints[idx].style.top = '40px'; // 动画上移
+                }
+                idx++;
+                setTimeout(showNext, 200); // 每200ms显示下一个
+            }
+            showNext();
+        }
+        animateIn();
+
+        // 鼠标悬浮检测
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const tooltip = document.getElementById('tooltip');
+
+        function onMouseMove(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(nodes.filter(n => n.type === 'Mesh'));
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                tooltip.style.display = 'block';
+                tooltip.innerHTML = `<b>${obj.userData.year}</b><br>${obj.userData.title}<br>${obj.userData.desc}`;
+                tooltip.style.left = event.clientX + 10 + 'px';
+                tooltip.style.top = event.clientY - 20 + 'px';
+            } else {
+                tooltip.style.display = 'none';
+            }
+        }
+        renderer.domElement.addEventListener('mousemove', onMouseMove);
+
+        // 左右按钮
+        document.getElementById('btn-left').onclick = () => {
+            if (page > 0) {
+                page--;
+                drawTimeline();
+            }
+        };
+        document.getElementById('btn-right').onclick = () => {
+            if ((page + 1) * pageSize < timelineData.length) {
+                page++;
+                drawTimeline();
+            }
+        };
+
+        // 渲染循环
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+
+</html>

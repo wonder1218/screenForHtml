@@ -16,6 +16,7 @@
 .bottomContainer {
   display: flex;
   justify-content: space-between;
+  height: 625px;
 }
 
 #container {
@@ -71,8 +72,8 @@
   font-size: 14px;
   z-index: 1000;
   pointer-events: none;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-} 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
 
 
 .top {
@@ -160,6 +161,7 @@
   height: 35px;
   position: relative;
 }
+
 .subtitle-text {
   color: #75BDFF;
   font-family: YouSheBiaoTiHei;
@@ -172,6 +174,7 @@
   position: absolute;
   z-index: 3;
 }
+
 .subtitle-img {
   height: 70px;
   width: 860px;
@@ -237,6 +240,7 @@
   text-align: left;
   width: 222px;
 }
+
 .ge {
   font-size: 20px;
 }
@@ -321,7 +325,7 @@
 }
 
 .timeLineEcharts {
-  height: 625px;
+  height: 300px;
   /* width: 625px; */
   margin-bottom: 52px;
 }
@@ -352,6 +356,7 @@
 .contain .content video::-webkit-media-controls-mute-button {
   display: none;
 }
+
 .middle {
   margin: 0 48px;
   position: relative;
@@ -367,6 +372,136 @@
   padding: 10px;
   border-radius: 5px;
   font-size: 16px;
+}
+
+.timeline-horizontal-container {
+  /* background: #0a1a2a; */
+  padding: 20px;
+  border-radius: 10px;
+  color: #fff;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.timeline-header {
+  margin-bottom: 20px;
+}
+
+.timeline-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.timeline-horizontal-content {
+  display: flex;
+  align-items: center;
+}
+
+.timeline-horizontal {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  flex: 1;
+  margin: 0 10px;
+  overflow: hidden;
+}
+
+.timeline-horizontal-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 120px;
+}
+
+.between-tip-box {
+  position: absolute;
+  top: -80px;
+  /* 根据实际调整 */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  border: 2px solid red;
+  background: #22334a;
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px 24px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.tip-content {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tip-line {
+  position: absolute;
+  width: 40px;
+  height: 2px;
+  background: repeating-linear-gradient(to right,
+      red 0 8px,
+      transparent 8px 16px);
+  top: 50%;
+}
+
+.tip-line.left {
+  left: -40px;
+}
+
+.tip-line.right {
+  right: -40px;
+}
+
+.timeline-dot {
+  width: 16px;
+  height: 16px;
+  background: #ffb400;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin-bottom: 8px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.timeline-label {
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.timeline-horizontal::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #fff;
+  z-index: 1;
+}
+
+.timeline-horizontal-item:not(:last-child) {
+  margin-right: 40px;
+}
+
+.fade-in {
+  animation: fadeInLeft 0.5s;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .map {
@@ -449,11 +584,12 @@
   margin-top: 15px;
   margin-bottom: 18px;
 }
+
 .wordcloud-line {
   width: 772px;
-  position: absolute;
+  position: relative;
   right: 12px;
-  bottom: -10px;
+  bottom: 0px;
   transform: rotate(180deg);
 }
 
@@ -705,6 +841,7 @@
   left: 78px;
   width: 100px;
 }
+
 .pie-img {
   position: absolute;
   height: 126px;

@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-06-21 10:57:28
+ * @LastEditTime: 2025-06-21 22:00:24
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -143,8 +143,98 @@
               <div class="subtitle-text pointer">客户风险收益水平情况表</div>
               <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
             </div>
-            <div id="timeLineEcharts" class="timeLineEcharts"></div>
-            <!-- </div> -->
+            <div class="button-wrap">
+              <!-- <el-select v-model="valueLine" placeholder="请选择" @change="handleLineChange">
+              <el-option v-for="item in optionsLine" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select> -->
+            </div>
+            <div class="customer">
+              <div class="card-wrap">
+                <div class="card-list mgrt8">
+                  <div class="card-text">本期风险收益水平</div>
+                  <div class="card-content">
+                    <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                    <div class="card-data">
+                      <div class="data" style="margin-bottom: 20px">
+                        <span style="letter-spacing: -0.5px">1.68</span>
+                        <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-wrap">
+                <div class="card-list mgrt8">
+                  <div class="card-text">年初风险收益水平</div>
+                  <div class="card-content">
+                    <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                    <div class="card-data">
+                      <div class="data" style="margin-bottom: 20px">
+                        <span style="letter-spacing: -0.5px">1.89</span>
+                        <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-wrap">
+                <div class="card-list mgrt8">
+                  <div class="card-text">较年初</div>
+                  <div class="card-content">
+                    <img class="card-img" src="assets/images/screenfull/down.png" />
+                    <div class="card-data">
+                      <div class="data" style="margin-bottom: 20px">
+                        <span style="letter-spacing: -0.5px">0.21</span>
+                        <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- <div style="position:relative;width:625px;">
+              <button id="leftBtn" style="position:absolute;left:0;top:50%;z-index:10;" @click="prevItem()"  class="btn prev">&#8592;</button>
+              <div id="timeLineEcharts" class="timeLineEcharts"></div>
+              <button id="rightBtn" style="position:absolute;right:0;top:50%;z-index:10;" @click="nextItem()" class="btn next">&#8594;</button>
+            </div> -->
+            <div class="timeline-horizontal-container" id="timeline-horizontal-container">
+              <div class="timeline-header">
+                <span class="timeline-title">我是小标题呀</span>
+              </div>
+              <div class="timeline-horizontal-content">
+                <el-button @click="prevPage" :disabled="pageIndex === 0" icon="el-icon-arrow-left"></el-button>
+                <div class="timeline-horizontal">
+                  <div v-for="(item, idx) in visibleData" :key="item.id" class="timeline-horizontal-item"
+                    :class="{ 'fade-in': showItems[idx] }" ref="timelineItem" class="timeline-horizontal-item">
+                    <!-- <div class="timeline-dot"></div> -->
+                    <!-- <div class="timeline-label">{{ item.year }}</div> -->
+                    <!-- 在第2和第3个时间点之间插入提示框 -->
+                    <template v-if="idx === highlightIndex">
+                      <div class="between-tip-box">
+                        <div class="tip-content">
+                          XXX年<br>
+                          某政府数字化转型
+                        </div>
+                        <!-- 连接线 -->
+                        <div class="tip-line left"></div>
+                        <div class="tip-line right"></div>
+                      </div>
+                    </template>
+                    <el-popover placement="top" width="200" trigger="hover" :content="item.popContent">
+                      <div slot="reference" class="timeline-dot"></div>
+                    </el-popover>
+                    <div class="timeline-label">
+                      <div>{{ item.year }}</div>
+                      <div>{{ item.platform }}</div>
+                      <div>{{ item.desc }}</div>
+                    </div>
+                  </div>
+                </div>
+                <el-button @click="nextPage" :disabled="endIndex >= elementTimeLineData.length"
+                  icon="el-icon-arrow-right"></el-button>
+              </div>
+            </div>
             <img class="wordcloud-line" src="assets/images/screenfull/mapLine_bottom.png" />
           </div>
         </div>

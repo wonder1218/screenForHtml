@@ -248,6 +248,24 @@ new Vue({
                 customerTotal: 57024,
                 percentTotal: "100.00",
             },
+            elementTimeLineData: [
+                // 示例数据
+                { id: 1, year: '2015年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息1' },
+                { id: 2, year: '2016年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息2' },
+                { id: 3, year: '2017年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息3' },
+                { id: 4, year: '2018年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息4' },
+                { id: 5, year: '2019年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息5' },
+                { id: 6, year: '2020年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息6' },
+                { id: 7, year: '2021年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息7' },
+                { id: 8, year: '2022年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息8' },
+                { id: 9, year: '2023年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息9' },
+                { id: 10, year: '2024年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息10' },
+                { id: 11, year: '2025年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息11' },
+                { id: 12, year: '2026年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息12' },
+                { id: 13, year: '2027年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息13' },
+                { id: 14, year: '2028年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息14' },
+                { id: 15, year: '2029年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息15' }
+            ],
             timeLineData: [
                 { year: "XXX年", name: "XX平台\n启动建设", color: '#d1b032' },
                 { year: "XXX年", name: "XX平台\n启动建设", color: '#d1b032' },
@@ -261,6 +279,10 @@ new Vue({
             markPoint: {}, // 时间线标记点
             specialPointData: {}, // 特殊时间点数据
             specialPointDataIndex: 0, // 特殊时间点索引
+            pageIndex: 0,
+            pageSize: 5, // 一页显示几个节点
+            showItems: [], // 控制动画
+            highlightIndex: 2, // 例如在第2和第3个时间点之间插入提示框
         };
     },
     created() {
@@ -457,10 +479,27 @@ new Vue({
             },
         };
     },
+    computed: {
+        startIndex() {
+            return this.pageIndex * this.pageSize;
+        },
+        endIndex() {
+            return this.startIndex + this.pageSize;
+        },
+        visibleData() {
+            return this.elementTimeLineData.slice(this.startIndex, this.endIndex);
+        }
+    },
+    watch: {
+        visibleData() {
+            this.animateShow();
+        }
+    },
     mounted() {
         // this.initChart(this.mapData1);
         this.initPie3d();
-        this.initTimeLine();
+        // this.initTimeLine();
+        this.animateShow();
         // this.initOrgLineEcharts(this.xData, this.yData);
         // this.initStripLineEcharts(this.xData);
         // this.initProductLineEcharts(this.productLineData.DATADATE);
@@ -477,6 +516,39 @@ new Vue({
         window.removeEventListener('resize', this.handleResize); // 移除监听
     },
     methods: {
+        prevPage() {
+            if (this.pageIndex > 0) {
+                this.pageIndex--;
+            }
+        },
+        nextPage() {
+            if (this.endIndex < this.elementTimeLineData.length) {
+                this.pageIndex++;
+            }
+        },
+        animateShow() {
+            this.showItems = Array(this.pageSize).fill(false);
+            this.visibleData.forEach((item, idx) => {
+                setTimeout(() => {
+                    this.$set(this.showItems, idx, true);
+                }, idx * 200); // 依次动画
+            });
+        },
+        prevItem() {
+            if (this.pageIndex > 0) {
+                this.pageIndex--;
+                this.initTimeLine();
+            }
+        },
+        nextItem() {
+            if ((this.pageIndex + 1) * this.pageSize < this.timeLineData.length) {
+                this.pageIndex++;
+                this.initTimeLine();
+            }
+        },
+        getPageData() {
+            return this.timeLineData.slice(this.pageIndex * this.pageSize, (this.pageIndex + 1) * this.pageSize);
+        },
         /**
          * @author wzheng
          * @date 2025年6月21日10:16:32
@@ -505,7 +577,7 @@ new Vue({
                 tooltip: {
                     trigger: 'item',
                     formatter: function (params) {
-                        if(params.componentType == "markPoint") return;
+                        if (params.componentType == "markPoint") return;
                         const itemData = params.data.originalData;
                         // Create a custom tooltip box
                         let name = itemData.name.replace('\n', ' ');
