@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-06-21 10:57:28
+ * @LastEditTime: 2025-06-20 21:45:04
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -45,8 +45,126 @@
     </div>
     <!-- 内容 -->
     <div class="content">
-      <!-- 上边 -->
-      <div class="topContainer">
+      <!-- 左边 -->
+      <div class="left">
+        <!-- 实时冒烟监测 -->
+        <div class="customer-monitor">
+          <div class="subtitle">
+            <div class="subtitle-text pointer">条线纬度</div>
+            <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
+          </div>
+          <div class="button-wrap">
+            <!-- <el-select v-model="valueLine" placeholder="请选择" @change="handleLineChange">
+              <el-option v-for="item in optionsLine" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select> -->
+          </div>
+          <div class="customer">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pie-3d"  id="stripLineEcharts"></div>
+        <div class="smoke-trend">
+          <div class="subtitle">
+            <div class="subtitle-text">机构纬度汇总</div>
+            <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
+          </div>
+          <div class="bank-range">
+            <el-select v-model="valueOrg" placeholder="请选择" @change="handleOrgChange">
+              <el-option v-for="item in optionsOrg" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </div>
+          <div class="card-wrap">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="trend-chart" id="orgLatTotalEcharts"></div>
+          <img class="smoke-trend-line" src="assets/images/screenfull/mapLine_bottom.png" />
+        </div>
+      </div>
+      <div class="middle">
         <div class="map">
           <img class="map-bg" src="assets/images/screenfull/map_bg.png" />
           <img class="map-round-bg" src="assets/images/screenfull/map_bg_round.png" />
@@ -55,98 +173,147 @@
           <img class="mapline-bottom" src="assets/images/screenfull/mapLine_bottom.png" />
           <img class="mapline-left" src="assets/images/screenfull/mapLine_left.png" />
           <img class="mapline-right" src="assets/images/screenfull/mapLine_right.png" />
+          <!-- <div id="mapDiv" style="height: 600px; width: 800px"></div> -->
+          <!-- <div style="height: 600px;width: 800px;" id="mapDiv"></div> -->
           <div id="container"></div>
-          <div class="center-label" style="line-height: 1.1; text-align: center;">32%<br><span
-              style="font-size:28px;font-weight:normal;">项目数</span></div>
+          <div class="center-label" style="line-height: 1.1; text-align: center;">32%<br><span style="font-size:28px;font-weight:normal;">项目数</span></div>
           <button id="btn-prev" class="btn prev">&#8592;</button>
           <button id="btn-next" class="btn next">&#8594;</button>
           <div class="popup" id="popup"></div>
         </div>
-        <div class="map">
-          <img class="map-bg" src="assets/images/screenfull/map_bg.png" />
-          <img class="map-round-bg" src="assets/images/screenfull/map_bg_round.png" />
-          <img class="map-top-bg" src="assets/images/screenfull/maptop_bg.png" />
-          <img class="mapline-top" src="assets/images/screenfull/mapLine_top.png" />
-          <img class="mapline-bottom" src="assets/images/screenfull/mapLine_bottom.png" />
-          <img class="mapline-left" src="assets/images/screenfull/mapLine_left.png" />
-          <img class="mapline-right" src="assets/images/screenfull/mapLine_right.png" />
-          <div id="mapDiv" style="height: 600px; width: 800px"></div>
+        <div class="wordcloud">
+          <!-- <div class="wordcloud-title">机构纬度汇总</div> -->
+          <!-- <div style="display: flex;"> -->
+          <div class="wordcloud-content" style="height: 230px; width: 760px" id="productDistribute"></div>
+          <div class="wordcloud-content" style="height: 230px; width: 760px" id="customerDistribute"></div>
+          <!-- </div> -->
+          <img class="wordcloud-line" src="assets/images/screenfull/mapLine_bottom.png" />
         </div>
       </div>
-      <!-- 下边 -->
-      <div class="bottomContainer">
-        <!-- 条线纬度 -->
-        <div style="width: 50%;">
-          <div class="customer-monitor">
-            <div class="subtitle">
-              <div class="subtitle-text pointer">条线纬度</div>
-              <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
-            </div>
-            <div class="button-wrap">
-              <!-- <el-select v-model="valueLine" placeholder="请选择" @change="handleLineChange">
-              <el-option v-for="item in optionsLine" :key="item.value" :label="item.label" :value="item.value">
+      <!-- 右边 -->
+      <div class="right">
+        <div class="block1">
+          <div class="subtitle1">
+            <div class="subtitle-text1">产品维度</div>
+            <img class="subtitle-img1" src="assets/images/screenfull/risk_title_bg.png" />
+          </div>
+          <div class="bank-range">
+            <el-select v-model="valueProduct" placeholder="请选择" @change="handleProductChange">
+              <el-option v-for="item in optionsProduct" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
-            </el-select> -->
+            </el-select>
+            <el-select v-model="valueProduct" placeholder="请选择" @change="handleProductChange">
+              <el-option v-for="item in optionsProduct" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </div>
+          <div class="card-wrap">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="customer">
-              <div class="card-wrap">
-                <div class="card-list mgrt8">
-                  <div class="card-text">本期风险收益水平</div>
-                  <div class="card-content">
-                    <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
-                    <div class="card-data">
-                      <div class="data" style="margin-bottom: 20px">
-                        <span style="letter-spacing: -0.5px">1.68</span>
-                        <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
-                      </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="card-wrap">
-                <div class="card-list mgrt8">
-                  <div class="card-text">年初风险收益水平</div>
-                  <div class="card-content">
-                    <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
-                    <div class="card-data">
-                      <div class="data" style="margin-bottom: 20px">
-                        <span style="letter-spacing: -0.5px">1.89</span>
-                        <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card-wrap">
-                <div class="card-list mgrt8">
-                  <div class="card-text">较年初</div>
-                  <div class="card-content">
-                    <img class="card-img" src="assets/images/screenfull/down.png" />
-                    <div class="card-data">
-                      <div class="data" style="margin-bottom: 20px">
-                        <span style="letter-spacing: -0.5px">0.21</span>
-                        <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
-                      </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="pie-3d" id="stripLineEcharts"></div>
-          <img class="pie-3d-line" src="assets/images/screenfull/mapLine_bottom.png" />
+          <div class="loantrend" id="productLatEcharts"></div>
         </div>
-        <!-- 客户线 -->
-        <div style="width: 50%;">
-          <div class="wordcloud" style="margin-left: 125px;">
-            <div class="subtitle">
-              <div class="subtitle-text pointer">客户风险收益水平情况表</div>
-              <img class="subtitle-img" src="assets/images/screenfull/risk_title_bg.png" />
-            </div>
-            <div id="timeLineEcharts" class="timeLineEcharts"></div>
-            <!-- </div> -->
-            <img class="wordcloud-line" src="assets/images/screenfull/mapLine_bottom.png" />
+        <div class="block3">
+          <div class="subtitle1">
+            <div class="subtitle-text1">客户维度</div>
+            <img class="subtitle-img1" src="assets/images/screenfull/risk_title_bg.png" />
           </div>
+          <img class="block3-line" src="assets/images/screenfull/mapLine_bottom.png" />
+          <div class="bank-range">
+            <el-select v-model="valuePerson" placeholder="请选择" @change="handleProductChange">
+              <el-option v-for="item in optionsPerson" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+            <el-select v-model="valuePerson" placeholder="请选择" @change="handleCustomerChange">
+              <el-option v-for="item in optionsPerson" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </div>
+          <div class="card-wrap">
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">本期风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.68</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">年初风险收益水平</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/cardImg1.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">1.89</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-wrap">
+              <div class="card-list mgrt8">
+                <div class="card-text">较年初</div>
+                <div class="card-content">
+                  <img class="card-img" src="assets/images/screenfull/down.png" />
+                  <div class="card-data">
+                    <div class="data" style="margin-bottom: 20px">
+                      <span style="letter-spacing: -0.5px">0.21</span>
+                      <span class="font8" style="margin-right: -7px; margin-left: 1px">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="loantrend" id="customerLatEcharts"></div>
         </div>
       </div>
     </div>
@@ -198,21 +365,21 @@
     // 创建中心地球
     const earthGeometry = new THREE.SphereGeometry(10, 64, 64);
     const earthMaterial = new THREE.MeshPhongMaterial({
-      color: 0x3498db,
-      transparent: true,
-      opacity: 0.85,
-      shininess: 80,
-      specular: 0x555555
+        color: 0x3498db,
+        transparent: true,
+        opacity: 0.85,
+        shininess: 80,
+        specular: 0x555555
     });
     const earth = new THREE.Mesh(earthGeometry, earthMaterial);
     scene.add(earth);
     // 添加地球表面效果
     const surfaceGeometry = new THREE.SphereGeometry(10, 64, 64);
     const surfaceMaterial = new THREE.MeshBasicMaterial({
-      color: 0x1a7ad9,
-      transparent: true,
-      wireframe: true,
-      opacity: 0.2
+        color: 0x1a7ad9,
+        transparent: true,
+        wireframe: true,
+        opacity: 0.2
     });
     const surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
     scene.add(surface);
@@ -254,7 +421,7 @@
       moduleGroup.scale.set(1.4, 1.4, 1.4);
       // 1. 扁平圆柱体
       const cylinderGeometry = new THREE.CylinderGeometry(2, 2, 0.5, 32, 1, false);
-      const cylinderMaterial = new THREE.MeshPhongMaterial({
+      const cylinderMaterial = new THREE.MeshPhongMaterial({ 
         color: 0x3399ff,
         shininess: 80,
         transparent: true,
@@ -262,7 +429,7 @@
       });
       const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
       // cylinder.position.set(x, y, z + 0.25);
-
+      
       // 2. icon
       cylinder.rotation.x = Math.PI / 2; // 让圆柱体平躺
       cylinder.position.set(0, 0, 0.25);
@@ -304,7 +471,7 @@
       const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture, transparent: true });
       const labelSprite = new THREE.Sprite(labelMaterial);
       labelSprite.position.set(0, 0, 5.5);
-      labelSprite.scale.set(5, 2.5, 1);
+      labelSprite.scale.set(5, 2.5, 1);   
       // 6. 添加到 moduleGroup
       moduleGroup.add(labelSprite);
 
@@ -324,16 +491,16 @@
 
       // 6. 虚线连接线
       const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(0, 0, 0), // 地球中心
-        new THREE.Vector3(x, y, z)  // 项目球心
+          new THREE.Vector3(0, 0, 0), // 地球中心
+          new THREE.Vector3(x, y, z)  // 项目球心
       ]);
       const lineMaterial = new THREE.LineDashedMaterial({
-        color: 0x5dade2,
-        dashSize: 1,
-        gapSize: 0.7,
-        linewidth: 2,
-        transparent: true,
-        opacity: 0.7
+          color: 0x5dade2,
+          dashSize: 1,
+          gapSize: 0.7,
+          linewidth: 2,
+          transparent: true,
+          opacity: 0.7
       });
       const line = new THREE.Line(lineGeometry, lineMaterial);
       line.computeLineDistances();
@@ -344,17 +511,17 @@
       // 创建一个容器组来保持方向
       const containerGroup = new THREE.Group();
       containerGroup.add(moduleGroup);
-
+      
       // 将容器组添加到主组
       group.add(containerGroup);
       const interactives = [cylinder, iconSprite, labelSprite];
       // 更新模块数组
-      modules.push({
+      modules.push({ 
         containerGroup,
-        cylinder,
+        cylinder, 
         iconSprite,
         interactives,
-        angle
+        angle 
       });
     }
     scene.add(group);
@@ -363,7 +530,7 @@
     let currentIndex = 0;
     let autoRotate = true;
     let currentAngle = 0;
-    function switchModule(next = true) {
+    function switchModule(next = true)  {
       const step = 2 * Math.PI / moduleCount;
       if (next) {
         currentAngle += step; // 顺时针
@@ -376,7 +543,7 @@
         .start();
     };
     // 自动切换只在autoRotate为true时执行
-    setInterval(() => {
+    setInterval(() => { 
       if (autoRotate) switchModule(true);
     }, 4000);
 
@@ -388,16 +555,16 @@
     const mouse = new THREE.Vector2();
     const popup = document.getElementById('popup');
     // 添加鼠标移出容器的事件监听
-    container.addEventListener('mouseleave', function () {
+    container.addEventListener('mouseleave', function() {
       autoRotate = true;
       popup.style.display = 'none';
     });
-    renderer.domElement.addEventListener('mousemove', function (event) {
+    renderer.domElement.addEventListener('mousemove', function(event) {
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
-
+      
       // 获取所有可能被点击的对象
       const intersectObjects = modules.flatMap(m => m.interactives);
       const intersects = raycaster.intersectObjects(intersectObjects);
@@ -424,7 +591,7 @@
         autoRotate = true;
         popup.style.display = 'none';
       }
-    });
+    }); 
     // 渲染循环
     function animate() {
       requestAnimationFrame(animate);
@@ -443,7 +610,7 @@
     });
   </script>
   <script src="assets/js/createVue.js"></script>
-  <script src="assets/js/map.js"></script>
+  <!-- <script src="assets/js/map.js"></script> -->
   <!-- <script src="assets/js/lineEcharts.js"></script> -->
 </body>
 

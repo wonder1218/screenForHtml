@@ -166,12 +166,14 @@ new Vue({
             customerLineEcharts: {},
             customerDistributeEcharts: {},
             productDistributeEcharts: {},
+            timeLineChart: {}, // 时间线图表
             orgLatTotalOption: {},
             stripLineOption: {},
             productLineOption: {},
             cusLatTotalOption: {},
             customerTotalOption: {},
             productTotalOption: {},
+            timeLineOption: {},
             productSeries: [], // 产品折线图数据
             valueLine: 'all', // 条线纬度选择框的值
             valueProduct: 'all', // 产品纬度选择框的值
@@ -246,6 +248,19 @@ new Vue({
                 customerTotal: 57024,
                 percentTotal: "100.00",
             },
+            timeLineData: [
+                { year: "XXX年", name: "XX平台\n启动建设", color: '#d1b032' },
+                { year: "XXX年", name: "XX平台\n启动建设", color: '#d1b032' },
+                { year: "XXX年", name: "XX平台\n启动建设", color: '#d1b032' },
+                { year: "XXX年", name: "XX平台\n启动建设", color: '#4478ed', isSpecial: true, specialName: "省政府数字化转型" },
+                { year: "YXX年", name: "XX平台\n启动建设", color: '#d1b032' },
+                { year: "VXX年", name: "XX平台\n启动建设", color: '#d1b032' },
+                { year: "XX年", name: "XX\n启动建设", color: '#d1b032' },
+            ],
+            timeLineSeriesData: [], // 时间线数据
+            markPoint: {}, // 时间线标记点
+            specialPointData: {}, // 特殊时间点数据
+            specialPointDataIndex: 0, // 特殊时间点索引
         };
     },
     created() {
@@ -377,16 +392,81 @@ new Vue({
             // { value: this.data3D.notPresent, percent: this.data3D.notPresPercent, img: 'assets/images/screenfull/smoke_green.png', name: '', itemStyle: { color: '#46DADB', opacity: 0.7 } },
         ];
         this.pieData3D = JSON.parse(JSON.stringify(this.pieData3DCopy));
+        // 初始化时间线数据
+        this.timeLineSeriesData = this.timeLineData.map((item, index) => ({
+            value: 0, // Y value is constant for a horizontal timeline
+            symbolSize: 12,
+            itemStyle: {
+                color: item.color,
+            },
+            label: {
+                show: true,
+                position: 'bottom',
+                formatter: `{a|${item.year}}\n{b|${item.name}}`,
+                color: '#fff',
+                distance: 15,
+                rich: {
+                    a: {
+                        color: '#ffffff',
+                        fontSize: 14,
+                        lineHeight: 20,
+                    },
+                    b: {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        fontSize: 12,
+                        lineHeight: 18,
+                        align: 'center'
+                    }
+                }
+            },
+            // Store original data for tooltip
+            originalData: item
+        }));
+        this.specialPointIndex = this.timeLineData.findIndex(item => item.isSpecial);
+        this.specialPointData = this.timeLineData[this.specialPointIndex];
+        this.markPoint = {
+            symbol: 'rect',
+            symbolSize: [160, 60],
+            symbolOffset: [0, -60],
+            itemStyle: {
+                color: 'rgba(23, 50, 99, 0.8)',
+                borderColor: '#3375e4',
+                borderWidth: 1,
+            },
+            label: {
+                color: '#fff',
+                formatter: [
+                    `{a|${this.specialPointData.year}}`,
+                    `{b|${this.specialPointData.specialName}}`
+                ].join('\n'),
+                rich: {
+                    a: { fontSize: 16, lineHeight: 25, color: '#ffffff' },
+                    b: { fontSize: 14, color: 'rgba(255, 255, 255, 0.8)' }
+                }
+            },
+            data: [
+                {
+                    name: 'Special Event',
+                    coord: [this.specialPointIndex, 0],
+                }
+            ],
+            lineStyle: {
+                type: 'dotted',
+                color: '#4478ed',
+                width: 2
+            },
+        };
     },
     mounted() {
         // this.initChart(this.mapData1);
-        this.initOrgLineEcharts(this.xData, this.yData);
-        // this.initStripLineEcharts(this.xData);
-        this.initProductLineEcharts(this.productLineData.DATADATE);
-        this.initCustomerLineEcharts(this.customerData.DATADATE, this.customerData.RATE);
-        this.initCustomerDistributeEcharts(this.customerDistributeData);
-        this.initProductDistributeEcharts(this.customerDistributeDataCopy);
         this.initPie3d();
+        this.initTimeLine();
+        // this.initOrgLineEcharts(this.xData, this.yData);
+        // this.initStripLineEcharts(this.xData);
+        // this.initProductLineEcharts(this.productLineData.DATADATE);
+        // this.initCustomerLineEcharts(this.customerData.DATADATE, this.customerData.RATE);
+        // this.initCustomerDistributeEcharts(this.customerDistributeData);
+        // this.initProductDistributeEcharts(this.customerDistributeDataCopy);
         // window.addEventListener('resize', this.handleResize); // 监听窗口 resize
     },
     beforeDestroy() {
@@ -399,6 +479,83 @@ new Vue({
     methods: {
         /**
          * @author wzheng
+         * @date 2025年6月21日10:16:32
+         * @description 初始化时间线
+         * @returns 
+         */
+        initTimeLine() {
+            this.timeLineChart = echarts.init(document.getElementById("timeLineEcharts"));
+            this.timeLineOption = {
+                // backgroundColor: '#0a2150',
+                title: {
+                    text: '',
+                    left: '5%',
+                    top: '10%',
+                    textStyle: {
+                        color: '#fff',
+                        fontSize: 20
+                    }
+                },
+                grid: {
+                    top: '50%',
+                    bottom: '20%',
+                    left: '5%',
+                    right: '5%'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function (params) {
+                        if(params.componentType == "markPoint") return;
+                        const itemData = params.data.originalData;
+                        // Create a custom tooltip box
+                        let name = itemData.name.replace('\n', ' ');
+                        if (itemData.isSpecial) {
+                            name = itemData.specialName;
+                        }
+                        return `<div style="background-color: rgba(0,0,0,0.7); border: 1px solid #333; padding: 10px; border-radius: 4px;">
+                        <strong style="color: #fff;">${itemData.year}</strong><br>
+                        <span style="color: #eee;">${name}</span>
+                    </div>`;
+                    },
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
+                    textStyle: {
+                        color: '#fff'
+                    },
+                    position: 'top'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: this.timeLineData.map((_, index) => index), // Use index for category
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { show: false }
+                },
+                yAxis: {
+                    min: -1,
+                    max: 1,
+                    splitLine: { show: false },
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { show: false }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: this.timeLineSeriesData,
+                        symbol: 'circle',
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.5)',
+                            width: 1
+                        },
+                        markPoint: this.markPoint
+                    }
+                ]
+            };
+            this.timeLineChart.setOption(this.timeLineOption, true);
+        },
+        /**
+         * @author wzheng
          * @date 2025年6月20日21:01:56
          * @description 初始化3d饼图
          * @returns 
@@ -407,7 +564,7 @@ new Vue({
             this.chart3D = echarts.init(document.getElementById("stripLineEcharts"));
             this.optionPie3d = this.getPie3D(
                 this.pieData3D,
-                0.59    // 可做为调整内环大小
+                0    // 可做为调整内环大小
             );
             this.chart3D.setOption(this.optionPie3d, true);
         },
@@ -554,7 +711,6 @@ new Vue({
                     false,
                     false,
                     k,
-                    // 我这里做了一个处理，使除了第一个之外的值都是10
                     series[i].pieData.value === series[0].pieData.value ? 35 : 10
                 );
 
@@ -563,7 +719,6 @@ new Vue({
                 legendData.push(series[i].name);
             }
             // let boxHeight = this.getHeight3D(series)
-            // 准备待返回的配置项，把准备好的 legendData、series 传入。
             const option = {
                 legend: {
                     // show: true,
@@ -625,7 +780,7 @@ new Vue({
                         panSensitivity: 0,
                         // autoRotate: true,
                         // distance: 300,
-                        distance: 140, // 图表大小
+                        distance: 200, // 图表大小
                     },
                     // 后处理特效可以为画面添加高光、景深、环境光遮蔽（SSAO）、调色等效果。可以让整个画面更富有质感。
                     postEffect: {
