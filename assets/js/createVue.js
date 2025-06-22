@@ -250,21 +250,28 @@ new Vue({
             },
             elementTimeLineData: [
                 // 示例数据
-                { id: 1, year: '2015年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息1' },
-                { id: 2, year: '2016年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息2' },
-                { id: 3, year: '2017年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息3' },
-                { id: 4, year: '2018年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息4' },
-                { id: 5, year: '2019年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息5' },
-                { id: 6, year: '2020年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息6' },
-                { id: 7, year: '2021年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息7' },
-                { id: 8, year: '2022年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息8' },
-                { id: 9, year: '2023年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息9' },
-                { id: 10, year: '2024年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息10' },
-                { id: 11, year: '2025年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息11' },
-                { id: 12, year: '2026年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息12' },
-                { id: 13, year: '2027年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息13' },
-                { id: 14, year: '2028年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息14' },
-                { id: 15, year: '2029年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息15' }
+                { tip: false, id: 1, year: '2015年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息1' },
+                { tip: false, id: 2, year: '2016年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息2' },
+                {
+                    tip: true, id: 3,
+                    tipBetween: {
+                        title: 'XXX年',
+                        text: '某政府数字化转型'
+                    },
+                    year: '2017年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息3'
+                },
+                { tip: false, id: 4, year: '2018年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息4' },
+                { tip: false, id: 5, year: '2019年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息5' },
+                { tip: false, id: 6, year: '2020年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息6' },
+                { tip: false, id: 7, year: '2021年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息7' },
+                { tip: false, id: 8, year: '2022年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息8' },
+                { tip: false, id: 9, year: '2023年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息9' },
+                { tip: false, id: 10, year: '2024年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息10' },
+                { tip: false, id: 11, year: '2025年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息11' },
+                { tip: false, id: 12, year: '2026年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息12' },
+                { tip: false, id: 13, year: '2027年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息13' },
+                { tip: false, id: 14, year: '2028年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息14' },
+                { tip: false, id: 15, year: '2029年', platform: 'XX平台', desc: '启动建设', popContent: '详细信息15' }
             ],
             timeLineData: [
                 { year: "XXX年", name: "XX平台\n启动建设", color: '#d1b032' },
@@ -769,7 +776,6 @@ new Vue({
                 }
                 series.push(seriesItem);
             }
-            // 向每个 series-surface 传入不同的参数方程 series-surface.parametricEquation，也就是实现每一个扇形。
             console.log('series');
             console.log(series);
             for (let i = 0; i < series.length; i += 1) {
@@ -790,7 +796,6 @@ new Vue({
 
                 legendData.push(series[i].name);
             }
-            // let boxHeight = this.getHeight3D(series)
             const option = {
                 legend: {
                     // show: true,
@@ -844,7 +849,6 @@ new Vue({
                     top: '-8%',
                     // top: 2,
                     viewControl: {
-                        // 3d效果可以放大、旋转等，请自己去查看官方配置
                         alpha: 25, // 旋转角度
                         // beta: 30,
                         rotateSensitivity: 1,
@@ -854,9 +858,7 @@ new Vue({
                         // distance: 300,
                         distance: 200, // 图表大小
                     },
-                    // 后处理特效可以为画面添加高光、景深、环境光遮蔽（SSAO）、调色等效果。可以让整个画面更富有质感。
                     postEffect: {
-                        // 配置这项会出现锯齿，请自己去查看官方配置有办法解决
                         enable: false,
                         bloom: {
                             enable: true,
@@ -867,9 +869,6 @@ new Vue({
                             quality: 'medium',
                             radius: 2,
                         },
-                        // temporalSuperSampling: {
-                        //   enable: true,
-                        // },
                     },
                 },
                 series,

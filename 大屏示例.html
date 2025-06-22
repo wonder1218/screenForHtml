@@ -2,7 +2,7 @@
  * @Author: wonder1218 zhengwen_man@163.com
  * @Date: 2025-05-26 17:28:14
  * @LastEditors: wonder1218 zhengwen_man@163.com
- * @LastEditTime: 2025-06-21 22:00:24
+ * @LastEditTime: 2025-06-22 11:10:14
  * @FilePath: \ECharts\大屏示例.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -210,15 +210,14 @@
                     <!-- <div class="timeline-dot"></div> -->
                     <!-- <div class="timeline-label">{{ item.year }}</div> -->
                     <!-- 在第2和第3个时间点之间插入提示框 -->
-                    <template v-if="idx === highlightIndex">
+                    <template v-if="item.tip">
                       <div class="between-tip-box">
                         <div class="tip-content">
                           XXX年<br>
                           某政府数字化转型
                         </div>
                         <!-- 连接线 -->
-                        <div class="tip-line left"></div>
-                        <div class="tip-line right"></div>
+                        <div class="tip-connector"></div>
                       </div>
                     </template>
                     <el-popover placement="top" width="200" trigger="hover" :content="item.popContent">

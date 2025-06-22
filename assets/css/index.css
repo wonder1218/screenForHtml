@@ -401,11 +401,12 @@
 
 .timeline-horizontal {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   position: relative;
   flex: 1;
   margin: 0 10px;
   overflow: hidden;
+  height: 200px;
 }
 
 .timeline-horizontal-item {
@@ -418,23 +419,23 @@
 
 .between-tip-box {
   position: absolute;
-  top: -80px;
-  /* 根据实际调整 */
-  left: 50%;
-  transform: translateX(-50%);
+  top: -104px;
+  left: 45%;
+  /* transform: translateX(-50%); */
   z-index: 10;
-  border: 2px solid red;
+  /* border: 2px solid red; */
   background: #22334a;
   color: #fff;
   border-radius: 8px;
   padding: 12px 24px;
-  min-width: 120px;
+  min-width: 150px;
   text-align: center;
 }
 
 .tip-content {
   font-size: 16px;
   font-weight: bold;
+  margin-top: -10px;
 }
 
 .tip-line {
@@ -442,9 +443,38 @@
   width: 40px;
   height: 2px;
   background: repeating-linear-gradient(to right,
-      red 0 8px,
+      #22334a 0 8px,
       transparent 8px 16px);
   top: 50%;
+}
+
+.tip-connector {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 30px;
+  background: repeating-linear-gradient(to bottom,
+      #4a90e2 0,
+      #4a90e2 4px,
+      transparent 4px,
+      transparent 8px
+    );
+}
+
+/* 箭头 */
+.tip-connector::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #4a90e2;
 }
 
 .tip-line.left {
@@ -476,7 +506,7 @@
 .timeline-horizontal::before {
   content: '';
   position: absolute;
-  top: 16px;
+  top: 111px;
   left: 0;
   right: 0;
   height: 4px;
