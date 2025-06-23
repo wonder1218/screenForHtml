@@ -133,7 +133,7 @@
               </div>
             </div>
           </div>
-          <div class="pie-3d" id="stripLineEcharts"></div>
+          <div class="pie-3d" ref="pieChartRef" id="stripLineEcharts"></div>
           <div class="legend-wrap-3d">
               <div class="legend-3d" v-for="item of legendList" @click="clickLegend(item.name)" :class="item.color">{{ item.name }}</div>
           </div>

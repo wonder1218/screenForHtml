@@ -296,7 +296,13 @@ new Vue({
                 { name: '公司金融服务部', isSelect: true, color: 'red', type: 'red' },
                 { name: '普惠及乡村振兴金融服务部', isSelect: true, color: 'yellow', type: 'yellow' },
                 { name: '零售羚信货部', isSelect: true, color: 'blue', type: 'blue' },
-            ]
+            ],
+            seriesIndex: 0,
+            hoveredIndex: '',
+            isSelected: '',
+            isHovered: '',
+            startRatio: '',
+            endRatio: '',
         }
     },
     created() {
@@ -675,6 +681,121 @@ new Vue({
                 this.pieData3D,
                 0    // 可做为调整内环大小
             );
+            this.chart3D.setOption(this.optionPie3d, true);
+            this.chart3D.on('mouseover', this.onChartMouseOver);
+            this.chart3D.on('globalout', this.onChartGlobalOut);
+        },
+        /**
+         * @descripition 鼠标滑过3d图表时触发的事件
+         * @author wzheng
+         * @date 2025年6月23日09:53:53
+         * @param {*} params 
+         */
+        onChartMouseOver(params) {
+            let seriesIndex = params.seriesIndex;
+            // this.hoveredIndex = '';
+            // 准备重新渲染扇形所需的参数
+            // let this.isSelected;
+            // let this.isHovered;
+            // let this.startRatio;
+            // let this.endRatio;
+            // let k;
+            // let i;
+
+            // 如果触发 mouseover 的扇形当前已高亮，则不做操作
+            if (this.hoveredIndex === seriesIndex) {
+                return;
+
+                // 否则进行高亮及必要的取消高亮操作
+            } else {
+                // 如果当前有高亮的扇形，取消其高亮状态（对 option 更新）
+                if (this.hoveredIndex !== '') {
+                    // 从 option.series 中读取重新渲染扇形所需的参数，将是否高亮设置为 false。
+                    this.isSelected = this.optionPie3d.series[this.hoveredIndex].pieStatus.selected;
+                    this.isHovered = false;
+                    this.startRatio = this.optionPie3d.series[this.hoveredIndex].pieData.startRatio;
+                    this.endRatio = this.optionPie3d.series[this.hoveredIndex].pieData.endRatio;
+                    this.k = this.optionPie3d.series[this.hoveredIndex].pieStatus.k;
+                    this.i = this.optionPie3d.series[this.hoveredIndex].pieData.value === this.optionPie3d.series[0].pieData.value ? 35 : 10;
+                    // 对当前点击的扇形，执行取消高亮操作（对 this.optionPie3d 更新）
+                    this.optionPie3d.series[this.hoveredIndex].parametricEquation = this.getParametricEquation(
+                        this.startRatio,
+                        this.endRatio,
+                        this.isSelected,
+                        this.isHovered,
+                        this.k,
+                        this.i
+                    );
+                    this.optionPie3d.series[this.hoveredIndex].pieStatus.hovered = this.isHovered;
+
+                    // 将此前记录的上次选中的扇形对应的系列号 seriesIndex 清空
+                    this.hoveredIndex = '';
+                }
+
+                // 如果触发 mouseover 的扇形不是透明圆环，将其高亮（对 option 更新）
+                if (params.seriesName !== 'mouseoutSeries') {
+                    this.optionPie3d.title.text = ' ' + this.optionPie3d.series[seriesIndex].name + ' ' + this.optionPie3d.series[seriesIndex].pieData.value
+                    // 从 this.optionPie3d.series 中读取重新渲染扇形所需的参数，将是否高亮设置为 true。
+                    this.isSelected = this.optionPie3d.series[seriesIndex].pieStatus.selected;
+                    this.isHovered = true;
+                    this.startRatio = this.optionPie3d.series[seriesIndex].pieData.startRatio;
+                    this.endRatio = this.optionPie3d.series[seriesIndex].pieData.endRatio;
+                    this.k = this.optionPie3d.series[seriesIndex].pieStatus.k;
+
+                    // 对当前点击的扇形，执行高亮操作（对 option 更新）
+                    this.optionPie3d.series[seriesIndex].parametricEquation = this.getParametricEquation(
+                        this.startRatio,
+                        this.endRatio,
+                        this.isSelected,
+                        this.isHovered,
+                        this.k,
+                        // this.optionPie3d.series[seriesIndex].pieData.value + 5
+                        50
+                    );
+                    this.optionPie3d.series[seriesIndex].pieStatus.hovered = this.isHovered;
+
+                    // 记录上次高亮的扇形对应的系列号 seriesIndex
+                    this.hoveredIndex = seriesIndex;
+                }
+
+                // 使用更新后的 option，渲染图表
+                // myChart.setOption(option);
+                this.chart3D.setOption(this.optionPie3d, true);
+            }
+        },
+        /**
+         * @description 鼠标移出3d图表时触发的事件
+         * @author wzheng
+         * @date 2025年6月23日09:54:38
+         * @param {*} params 
+         */
+        onChartGlobalOut(params) {
+            // 准备重新渲染扇形所需的参数
+            if (this.hoveredIndex !== '') {
+                // 从 option.series 中读取重新渲染扇形所需的参数，将是否高亮设置为 true。
+                this.isSelected = this.optionPie3d.series[this.hoveredIndex].pieStatus.selected;
+                this.isHovered = false;
+                this.k = this.optionPie3d.series[this.hoveredIndex].pieStatus.k;
+                this.startRatio = this.optionPie3d.series[this.hoveredIndex].pieData.startRatio;
+                this.endRatio = this.optionPie3d.series[this.hoveredIndex].pieData.endRatio;
+                // 对当前点击的扇形，执行取消高亮操作（对 this.optionPie3d 更新）
+                this.i = this.optionPie3d.series[this.hoveredIndex].pieData.value === this.optionPie3d.series[0].pieData.value ? 35 : 10;
+                this.optionPie3d.series[this.hoveredIndex].parametricEquation = this.getParametricEquation(
+                    this.startRatio,
+                    this.endRatio,
+                    this.isSelected,
+                    this.isHovered,
+                    this.k,
+                    this.i
+                );
+                this.optionPie3d.series[this.hoveredIndex].pieStatus.hovered = this.isHovered;
+
+                // 将此前记录的上次选中的扇形对应的系列号 seriesIndex 清空
+                this.hoveredIndex = '';
+            }
+
+            // 使用更新后的 option，渲染图表
+            // myChart.setOption(this.optionPie3d);
             this.chart3D.setOption(this.optionPie3d, true);
         },
         /**
