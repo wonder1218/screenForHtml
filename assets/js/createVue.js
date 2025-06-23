@@ -290,7 +290,14 @@ new Vue({
             pageSize: 5, // 一页显示几个节点
             showItems: [], // 控制动画
             highlightIndex: 2, // 例如在第2和第3个时间点之间插入提示框
-        };
+            color: ["#00BCEE", "#0BE19E", "#EAA031"],
+            widthValue: 0, // 用于计算宽度的值
+            legendList: [
+                { name: '公司金融服务部', isSelect: true, color: 'red', type: 'red' },
+                { name: '普惠及乡村振兴金融服务部', isSelect: true, color: 'yellow', type: 'yellow' },
+                { name: '零售羚信货部', isSelect: true, color: 'blue', type: 'blue' },
+            ]
+        }
     },
     created() {
         for (let item of this.datas.orgdatas) {
@@ -485,6 +492,7 @@ new Vue({
                 width: 2
             },
         };
+        this.widthValue = this.nowSize(378);
     },
     computed: {
         startIndex() {
@@ -523,6 +531,28 @@ new Vue({
         window.removeEventListener('resize', this.handleResize); // 移除监听
     },
     methods: {
+        clickLegend(name) {
+            for (let item of this.legendList) {
+                if (name == item.name) {
+                    item.isSelect = !item.isSelect;
+                }
+                if (!item.isSelect) {//未选中颜色
+                    item.color = 'gray';
+                } else {
+                    item.color = item.type;
+                }
+            }
+            let list = []
+            for (var i = 0; i < this.pieData3DCopy.length; i++) {
+                for (let item of this.legendList) {
+                    if (item.name == this.pieData3DCopy[i].name && item.isSelect) {
+                        list.push(this.pieData3DCopy[i])
+                    }
+                }
+            }
+            this.pieData3D = list
+            this.initPie3d()
+        },
         prevPage() {
             if (this.pageIndex > 0) {
                 this.pageIndex--;
@@ -871,9 +901,84 @@ new Vue({
                         },
                     },
                 },
-                series,
+                series: [
+                    ...series,
+                    // {
+                    //     name: "pie2d",
+                    //     type: "pie",
+                    //     label: {
+                    //         shaow: true,
+                    //         position: 'outside',
+                    //         opacity: 1,
+                    //         edgeDistance: "1%",
+                    //         alignTo: "edge",
+                    //         distanceToLabelLine: 0,
+                    //         formatter: (params) => {
+                    //             return `{name|${params.name}}\n{${params.dataIndex == 0
+                    //                 ? "red"
+                    //                 : params.dataIndex == 1
+                    //                     ? "blue"
+                    //                     : "green"
+                    //                 }|(${params.percent}%)}`;
+                    //         },
+                    //         color: "#fff",
+                    //         rich: {
+                    //             red: {
+                    //                 fontSize: this.nowSize(16),
+                    //                 color: "#00BCEE",
+                    //             },
+                    //             blue: {
+                    //                 fontSize: this.nowSize(16),
+                    //                 color: "#0BE19E",
+                    //             },
+                    //             green: {
+                    //                 fontSize: this.nowSize(16),
+                    //                 color: "#EAA031",
+                    //             },
+                    //             name: {
+                    //                 fontSize: this.nowSize(14),
+                    //                 color: "#fff",
+                    //                 align: "center",
+                    //             },
+                    //         },
+                    //     },
+                    //     labelLine: {
+                    //         show: true,
+                    //         length: "10%",
+                    //         length2: 0,
+                    //     },
+                    //     labelLayout: function (params) {
+                    //         const isLeft = params.labelRect.x < this.widthValue / 2;
+                    //         const points = params.labelLinePoints;
+                    //         // Update the end point.
+                    //         points[2][0] = isLeft
+                    //             ? params.labelRect.x
+                    //             : params.labelRect.x + params.labelRect.width;
+                    //         return {
+                    //             labelLinePoints: points,
+                    //             verticalAlign: "bottom",
+                    //         };
+                    //     },
+                    //     startAngle: 45, //起始角度，支持范围[0, 360]。
+                    //     clockwise: false, //饼图的扇区是否是顺时针排布。上述这两项配置主要是为了对齐3d的样式
+                    //     radius: ['35%', '45%'], // 调整位置和大小以匹配 3D 图
+                    //     center: ['50%', '42%'],
+                    //     data: pieData,
+                    //     itemStyle: {
+                    //         opacity: 0,
+                    //         emphasis: { opacity: 0 },
+                    //         color: (params) => {
+                    //             return this.color[params.dataIndex];
+                    //         },
+                    //     }
+                    // }
+                ],
             };
             return option;
+        },
+        nowSize(val, initWidth = 3280) {
+            var nowClientWidth = document.documentElement.clientWidth;
+            return val * (nowClientWidth / initWidth);
         },
         /**
          * @author wzheng

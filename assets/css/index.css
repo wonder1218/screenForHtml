@@ -417,6 +417,77 @@
   min-width: 120px;
 }
 
+.legend-wrap-3d {
+  height: 25px;
+  width: 450px;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.legend-3d {
+  color: #fff;
+  font-size: 12px;
+  position: relative;
+  cursor: pointer;
+}
+
+.gray::before {
+  background-color: #cccccc;
+  content: '';
+  height: 12px;
+  width: 12px;
+  border-radius: 6px;
+  position: absolute;
+  left: -18px;
+  top: 3px;
+}
+
+.red::before {
+  background: #F3410A;
+  content: '';
+  height: 12px;
+  width: 12px;
+  border-radius: 6px;
+  position: absolute;
+  left: -18px;
+  top: 3px;
+}
+
+.yellow::before {
+  background-color: #FFCF37;
+  content: '';
+  height: 12px;
+  width: 12px;
+  border-radius: 6px;
+  position: absolute;
+  left: -18px;
+  top: 3px;
+}
+
+.blue::before {
+  background-color: #065DFF;
+  content: '';
+  height: 12px;
+  width: 12px;
+  border-radius: 6px;
+  position: absolute;
+  left: -18px;
+  top: 3px;
+}
+
+.green::before {
+  background-color: #46DADB;
+  content: '';
+  height: 12px;
+  width: 12px;
+  border-radius: 6px;
+  position: absolute;
+  left: -18px;
+  top: 3px;
+}
+
 .between-tip-box {
   position: absolute;
   top: -104px;
@@ -459,8 +530,7 @@
       #4a90e2 0,
       #4a90e2 4px,
       transparent 4px,
-      transparent 8px
-    );
+      transparent 8px);
 }
 
 /* 箭头 */
