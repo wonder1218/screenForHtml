@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .dashboard-3d {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+            perspective: 1200px;
+        }
+
+        .ring3d {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform-style: preserve-3d;
+            pointer-events: none;
+        }
+
+        .base-ring {
+            width: 400px;
+            height: 400px;
+            margin: -200px 0 0 -200px;
+            z-index: 1;
+        }
+
+        .top-ring {
+            width: 260px;
+            height: 260px;
+            margin: -130px 0 0 -130px;
+            z-index: 5;
+            top: 25%;
+        }
+
+        .project-items,
+        .top-items {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 400px;
+            height: 400px;
+            margin: -200px 0 0 -200px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .top-items {
+            width: 260px;
+            height: 260px;
+            margin: -130px 0 0 -130px;
+            top: 25%;
+            z-index: 6;
+        }
+
+        .project-item,
+        .top-item {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 90px;
+            height: 40px;
+            margin: -20px -45px;
+            background: rgba(51, 153, 255, 0.18);
+            border-radius: 12px;
+            color: #1a1a1f;
+            font-size: 18px;
+            text-align: center;
+            line-height: 40px;
+            box-shadow: 0 2px 8px rgba(51, 153, 255, 0.08);
+            pointer-events: auto;
+            user-select: none;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .center-count {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 38px;
+            color: #3399ff;
+            font-weight: bold;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hollow-rings {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 400px;
+            height: 400px;
+            margin: -200px 0 0 -200px;
+            z-index: 3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-3d">
+        <div class="ring3d base-ring"></div> <!-- 底部3D圆环 -->
+        <div class="project-items"></div> <!-- 底部项目div -->
+        <div class="hollow-rings"></div> <!-- 空心圆环 -->
+        <div class="center-count">32.62%<br><span>项目数 328.62</span></div> <!-- 中心项目数 -->
+        <div class="ring3d top-ring"></div> <!-- 顶部3D圆环 -->
+        <div class="top-items"></div> <!-- 顶部可转动项目div -->
+    </div>
+    <script>
+        function create3DRing(container, count, radius, width, height) {
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'ring-segment';
+                seg.style.width = width + 'px';
+                seg.style.height = height + 'px';
+                const angle = 360 / count * i;
+                seg.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+                container.appendChild(seg);
+            }
+        }
+        const baseRing = document.querySelector('.base-ring');
+        create3DRing(baseRing, 36, 180, 16, 40);
+
+        const projectNames = ['项目一', '项目二', '项目三', '项目四', '项目五', '项目六'];
+        const projectItems = document.querySelector('.project-items');
+        projectItems.innerHTML = '';
+        const projRadius = 160;
+        projectNames.forEach((name, i) => {
+            const div = document.createElement('div');
+            div.className = 'project-item';
+            const angle = 360 / projectNames.length * i;
+            div.style.transform = `rotateY(${angle}deg) translateZ(${projRadius}px)`;
+            div.innerText = name + '\n474.00';
+            projectItems.appendChild(div);
+        });
+
+        const hollowRings = document.querySelector('.hollow-rings');
+        hollowRings.innerHTML = `
+  <div style="position:absolute;left:50%;top:50%;width:320px;height:320px;margin:-160px 0 0 -160px;border:2px solid #b3e0ff;border-radius:50%;opacity:0.5;"></div>
+  <div style="position:absolute;left:50%;top:50%;width:260px;height:260px;margin:-130px 0 0 -130px;border:2px solid #b3e0ff;border-radius:50%;opacity:0.3;"></div>
+`;
+
+        const topRing = document.querySelector('.top-ring');
+        create3DRing(topRing, 24, 110, 12, 32);
+
+        const topNames = ['项目A', '项目B', '项目C', '项目D', '项目E'];
+        const topItems = document.querySelector('.top-items');
+        topItems.innerHTML = '';
+        const topRadius = 90;
+        topNames.forEach((name, i) => {
+            const div = document.createElement('div');
+            div.className = 'top-item';
+            const angle = 360 / topNames.length * i;
+            div.style.transform = `rotateY(${angle}deg) translateZ(${topRadius}px)`;
+            div.innerText = name + '\n474.00';
+            topItems.appendChild(div);
+        });
+
+        let topAngle = 0;
+        function rotateTopItems() {
+            topAngle += 0.3;
+            topItems.style.transform = `rotateY(${topAngle}deg)`;
+            requestAnimationFrame(rotateTopItems);
+        }
+        rotateTopItems();
+    </script>
+</body>
+
+</html>

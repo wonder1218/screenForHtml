@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品风险收益动态展示系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #3a7bd5, #00d2ff);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 25px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            padding: 25px 40px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 32px;
+            letter-spacing: 1.5px;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            color: #4db8ff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(0, 30, 60, 0.5);
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+            border: 1px solid rgba(77, 184, 255, 0.3);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 8px 20px rgba(0, 102, 204, 0.4);
+            border-color: rgba(77, 184, 255, 0.6);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: #4db8ff;
+            font-weight: 600;
+            font-size: 22px;
+        }
+
+        .stat-icon {
+            font-size: 28px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            background: rgba(0, 51, 102, 0.7);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-row:hover {
+            background: rgba(0, 102, 204, 0.8);
+        }
+
+        .stat-label {
+            font-weight: 500;
+            color: #aadcff;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 22px;
+        }
+
+        .visualization-area {
+            position: relative;
+            height: 500px;
+            background: rgba(0, 30, 60, 0.4);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 0 25px rgba(0, 102, 204, 0.4);
+            margin-bottom: 30px;
+            border: 1px solid rgba(77, 184, 255, 0.3);
+        }
+
+        #visualization-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ring-labels {
+            position: absolute;
+            bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .ring-label {
+            background: rgba(0, 102, 204, 0.9);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .project-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            padding: 30px;
+            background: rgba(0, 20, 40, 0.6);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(77, 184, 255, 0.3);
+        }
+
+        .project-highlight {
+            flex: 1;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #4db8ff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .section-icon {
+            font-size: 28px;
+        }
+
+        .project-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .project-stat {
+            background: rgba(0, 51, 102, 0.7);
+            border-radius: 15px;
+            padding: 18px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .project-stat:hover {
+            background: rgba(0, 102, 204, 0.8);
+            transform: translateY(-5px);
+        }
+
+        .stat-title {
+            font-size: 16px;
+            color: #aadcff;
+            margin-bottom: 8px;
+        }
+
+        .stat-main {
+            font-size: 26px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 20, 40, 0.95);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(25px) scale(0.95);
+            transition: all 0.4s ease;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            max-width: 340px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(77, 184, 255, 0.4);
+        }
+
+        .tooltip-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #4db8ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tooltip-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-top: 10px;
+        }
+
+        .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 12px;
+        }
+
+        .tooltip-label {
+            font-size: 17px;
+            opacity: 0.85;
+            color: #aadcff;
+        }
+
+        .tooltip-value {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        footer {
+            background: linear-gradient(to right, #0d1b24, #162b37);
+            color: rgba(255, 255, 255, 0.85);
+            padding: 25px;
+            text-align: center;
+            font-size: 16px;
+            border-top: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .time-display {
+            font-weight: 500;
+            background: rgba(0, 51, 102, 0.5);
+            padding: 8px 18px;
+            border-radius: 50px;
+        }
+
+        .project-counter {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 102, 204, 0.4);
+            padding: 8px 18px;
+            border-radius: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line logo"></i> 产品风险收益动态展示系统</h1>
+                <div class="controls">
+                    <button id="pauseBtn" class="btn">
+                        <i class="fas fa-pause"></i>暂停旋转
+                    </button>
+                    <button id="prevBtn" class="btn">
+                        <i class="fas fa-arrow-left"></i>上一个
+                    </button>
+                    <button id="nextBtn" class="btn">
+                        下一个 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <i class="fas fa-hands-helping stat-icon"></i>
+                        <span>公益筹款风险收益</span>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">当前风险收益水平</div>
+                        <div class="stat-value">3.00%</div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">年初风险收益水平</div>
+                        <div class="stat-value">2.68%</div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">较年初变化</div>
+                        <div class="stat-value">+0.32%</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <i class="fas fa-user stat-icon"></i>
+                        <span>个人筹款风险收益</span>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">当前风险收益水平</div>
+                        <div class="stat-value">3.00%</div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">年初风险收益水平</div>
+                        <div class="stat-value">2.68%</div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">较年初变化</div>
+                        <div class="stat-value">+0.32%</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <i class="fas fa-shield-alt stat-icon"></i>
+                        <span>个人保风险收益</span>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">当前风险收益水平</div>
+                        <div class="stat-value">3.00%</div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">年初风险收益水平</div>
+                        <div class="stat-value">2.68%</div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">较年初变化</div>
+                        <div class="stat-value">+0.32%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization-area">
+                <canvas id="visualization-canvas"></canvas>
+                <div class="ring-labels">
+                    <div class="ring-label"><i class="fas fa-circle"></i> 上层：公益筹款项目</div>
+                    <div class="ring-label"><i class="fas fa-circle"></i> 中层：个人筹款项目</div>
+                    <div class="ring-label"><i class="fas fa-circle"></i> 下层：个人保项目</div>
+                </div>
+                <div id="tooltip" class="tooltip"></div>
+            </div>
+
+            <div class="project-info">
+                <div class="project-highlight">
+                    <div class="section-title">
+                        <i class="fas fa-star section-icon"></i>
+                        <h3>当前选中项目详情</h3>
+                    </div>
+                    <div id="current-project" class="project-stats">
+                        <!-- 由JavaScript填充 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="time-display">
+                <i class="fas fa-clock"></i> 最后更新时间: <span id="timeDisplay">--:--:--</span>
+            </div>
+            <div class="project-counter">
+                <i class="fas fa-project-diagram"></i> 总项目数: 18个
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 项目数据 - 来自图片中的文本
+        const projects = [
+            { id: 1, name: "项目一", value: 474.00, rate: "32.62%", type: "个人保", category: "lower" },
+            { id: 2, name: "项目二", value: 328.62, rate: "28.15%", type: "公益筹", category: "upper" },
+            { id: 3, name: "项目三", value: 285.00, rate: "24.80%", type: "个人筹", category: "middle" },
+            { id: 4, name: "项目四", value: 395.00, rate: "30.45%", type: "公益筹", category: "upper" },
+            { id: 5, name: "项目五", value: 412.00, rate: "29.76%", type: "个人保", category: "lower" },
+            { id: 6, name: "项目六", value: 360.00, rate: "25.83%", type: "个人筹", category: "middle" },
+            { id: 7, name: "项目七", value: 380.00, rate: "27.43%", type: "公益筹", category: "upper" },
+            { id: 8, name: "项目八", value: 415.00, rate: "31.18%", type: "个人筹", category: "middle" }
+        ];
+
+        // 配置常量
+        const VISUALIZATION_CONFIG = {
+            rotationSpeed: 0.005,
+            tooltipDuration: 1500,
+            autoSwitchDuration: 5000,
+            ringDistances: {
+                upper: 15,
+                middle: 12,
+                lower: 9
+            },
+            ringHeights: {
+                upper: 8,
+                middle: 0,
+                lower: -8
+            },
+            colors: {
+                upper: 0x0066cc,
+                middle: 0x0099cc,
+                lower: 0x00b3b3
+            }
+        };
+
+        // 初始化Three.js
+        const scene = new THREE.Scene();
+        const canvas = document.getElementById('visualization-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setClearColor(0x000000, 0);
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+
+        const camera = new THREE.PerspectiveCamera(
+            60,
+            canvas.clientWidth / canvas.clientHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(0, 0, 40);
+
+        // 添加光源
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const topLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        topLight.position.set(0, 20, 10);
+        scene.add(topLight);
+
+        const bottomLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        bottomLight.position.set(0, -20, -10);
+        scene.add(bottomLight);
+
+        // 创建环组
+        const ringGroup = new THREE.Group();
+        scene.add(ringGroup);
+
+        // 创建项目点数组用于交互
+        const projectPoints = [];
+
+        // 创建环状结构
+        function createRings() {
+            // 创建上层环
+            const upperRing = new THREE.RingGeometry(
+                VISUALIZATION_CONFIG.ringDistances.upper - 0.5,
+                VISUALIZATION_CONFIG.ringDistances.upper,
+                64
+            );
+            const upperMaterial = new THREE.MeshBasicMaterial({
+                color: VISUALIZATION_CONFIG.colors.upper,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+            const upperMesh = new THREE.Mesh(upperRing, upperMaterial);
+            upperMesh.rotation.x = Math.PI / 2;
+            upperMesh.position.y = VISUALIZATION_CONFIG.ringHeights.upper;
+            ringGroup.add(upperMesh);
+
+            // 创建中层环
+            const middleRing = new THREE.RingGeometry(
+                VISUALIZATION_CONFIG.ringDistances.middle - 0.5,
+                VISUALIZATION_CONFIG.ringDistances.middle,
+                64
+            );
+            const middleMaterial = new THREE.MeshBasicMaterial({
+                color: VISUALIZATION_CONFIG.colors.middle,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+            const middleMesh = new THREE.Mesh(middleRing, middleMaterial);
+            middleMesh.rotation.x = Math.PI / 2;
+            middleMesh.position.y = VISUALIZATION_CONFIG.ringHeights.middle;
+            ringGroup.add(middleMesh);
+
+            // 创建下层环
+            const lowerRing = new THREE.RingGeometry(
+                VISUALIZATION_CONFIG.ringDistances.lower - 0.5,
+                VISUALIZATION_CONFIG.ringDistances.lower,
+                64
+            );
+            const lowerMaterial = new THREE.MeshBasicMaterial({
+                color: VISUALIZATION_CONFIG.colors.lower,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+            const lowerMesh = new THREE.Mesh(lowerRing, lowerMaterial);
+            lowerMesh.rotation.x = Math.PI / 2;
+            lowerMesh.position.y = VISUALIZATION_CONFIG.ringHeights.lower;
+            ringGroup.add(lowerMesh);
+        }
+
+        // 创建项目点
+        function createProjects() {
+            // 按类别分组
+            const projectGroups = {
+                upper: projects.filter(p => p.category === 'upper'),
+                middle: projects.filter(p => p.category === 'middle'),
+                lower: projects.filter(p => p.category === 'lower')
+            };
+
+            // 在对应的环上添加项目点
+            Object.entries(projectGroups).forEach(([category, projectList]) => {
+                const ringConfig = {
+                    radius: VISUALIZATION_CONFIG.ringDistances[category],
+                    y: VISUALIZATION_CONFIG.ringHeights[category],
+                    color: VISUALIZATION_CONFIG.colors[category]
+                };
+
+                projectList.forEach((project, index) => {
+                    const angle = (index / projectList.length) * Math.PI * 2;
+                    const x = Math.cos(angle) * ringConfig.radius;
+                    const z = Math.sin(angle) * ringConfig.radius;
+
+                    // 创建项目球体
+                    const pointGeometry = new THREE.SphereGeometry(0.8, 16, 16);
+                    const pointMaterial = new THREE.MeshLambertMaterial({
+                        color: ringConfig.color,
+                        emissive: ringConfig.color,
+                        emissiveIntensity: 0.3
+                    });
+                    const point = new THREE.Mesh(pointGeometry, pointMaterial);
+
+                    point.position.set(x, ringConfig.y, z);
+                    point.userData = { project, category };
+                    projectPoints.push(point);
+
+                    // 创建项目标签
+                    createProjectLabel(point, project, ringConfig.color);
+
+                    ringGroup.add(point);
+                });
+            });
+        }
+
+        // 创建项目标签
+        function createProjectLabel(point, project, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 160;
+            canvas.height = 80;
+            const ctx = canvas.getContext('2d');
+
+            // 绘制背景
+            ctx.fillStyle = `rgb(${color >> 16}, ${(color >> 8) & 0xff}, ${color & 0xff})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制文字
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+
+            // 项目名称
+            ctx.font = 'bold 16px "Microsoft YaHei"';
+            ctx.fillText(project.name, canvas.width / 2, 28);
+
+            // 项目数值
+            ctx.font = 'bold 20px "Microsoft YaHei"';
+            ctx.fillText(`${project.value}`, canvas.width / 2, 55);
+
+            // 项目比例
+            ctx.font = '16px "Microsoft YaHei"';
+            ctx.fillText(project.rate, canvas.width / 2, 75);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true
+            });
+
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(8, 4, 1);
+            sprite.position.set(0, 2, 0); // 在球体上方显示
+            sprite.userData = project;
+
+            point.add(sprite);
+        }
+
+        // 创建当前项目显示区域
+        function setupCurrentProjectDisplay() {
+            const projectContainer = document.getElementById('current-project');
+            projectContainer.innerHTML = '';
+
+            // 创建6个项目展示框
+            projects.slice(0, 6).forEach(project => {
+                const projectElement = document.createElement('div');
+                projectElement.className = 'project-stat';
+                projectElement.innerHTML = `
+                    <div class="stat-title">${project.name}</div>
+                    <div class="stat-main">${project.value}</div>
+                    <div class="stat-title">${project.rate}</div>
+                `;
+                projectContainer.appendChild(projectElement);
+            });
+        }
+
+        // 创建提示框
+        function setupTooltip() {
+            const tooltip = document.getElementById('tooltip');
+
+            // 初始隐藏
+            tooltip.style.opacity = '0';
+            tooltip.style.pointerEvents = 'none';
+        }
+
+        // 显示项目提示信息
+        function showProjectTooltip(project, position) {
+            const tooltip = document.getElementById('tooltip');
+
+            tooltip.innerHTML = `
+                <div class="tooltip-title">
+                    <i class="fas fa-info-circle"></i> ${project.name}
+                </div>
+                <div class="tooltip-stats">
+                    <div class="tooltip-row">
+                        <div class="tooltip-label">项目类型</div>
+                        <div class="tooltip-value">${project.type}</div>
+                    </div>
+                    <div class="tooltip-row">
+                        <div class="tooltip-label">项目数值</div>
+                        <div class="tooltip-value">${project.value}</div>
+                    </div>
+                    <div class="tooltip-row">
+                        <div class="tooltip-label">占比</div>
+                        <div class="tooltip-value">${project.rate}</div>
+                    </div>
+                    <div class="tooltip-row">
+                        <div class="tooltip-label">风险等级</div>
+                        <div class="tooltip-value">${Math.floor(Math.random() * 3) + 2}级</div>
+                    </div>
+                </div>
+            `;
+
+            // 设置位置，略微偏移鼠标位置
+            tooltip.style.left = `${position.x + 20}px`;
+            tooltip.style.top = `${position.y - 50}px`;
+
+            // 显示并添加动画效果
+            tooltip.style.opacity = '1';
+            tooltip.style.transform = 'translateY(0) scale(1)';
+        }
+
+        // 隐藏项目提示信息
+        function hideProjectTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.opacity = '0';
+            tooltip.style.transform = 'translateY(25px) scale(0.95)';
+        }
+
+        // 设置鼠标悬浮交互
+        function setupHoverInteraction() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            function onMouseMove(event) {
+                // 计算归一化的鼠标位置
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                // 更新射线
+                raycaster.setFromCamera(mouse, camera);
+
+                // 检测与项目点的交集
+                const intersects = raycaster.intersectObjects(projectPoints);
+
+                if (intersects.length > 0) {
+                    // 找到第一个交点的对象
+                    const point = intersects[0].object;
+
+                    // 如果这个对象是项目点，则显示提示
+                    if (point.userData && point.userData.project) {
+                        STATE.isHovering = true;
+                        STATE.currentProject = point.userData.project;
+
+                        // 暂停旋转
+                        STATE.autoRotation = false;
+
+                        // 显示提示框
+                        showProjectTooltip(point.userData.project, {
+                            x: event.clientX,
+                            y: event.clientY
+                        });
+                    }
+                } else {
+                    // 如果之前悬浮在项目上但现在没有
+                    if (STATE.isHovering) {
+                        STATE.isHovering = false;
+                        STATE.autoRotation = true;
+
+                        // 隐藏提示框
+                        hideProjectTooltip();
+                    }
+                }
+            }
+
+            // 添加鼠标移动监听
+            window.addEventListener('mousemove', onMouseMove);
+        }
+
+        // 状态管理
+        const STATE = {
+            autoRotation: true,
+            rotationSpeed: VISUALIZATION_CONFIG.rotationSpeed,
+            isHovering: false,
+            currentProject: null,
+            switchTimer: null,
+            nextTimeout: null
+        };
+
+        // 开始自动切换
+        function startAutoSwitch() {
+            STATE.switchTimer = setInterval(() => {
+                // 如果没有悬浮在项目上，旋转下一个项目
+                if (!STATE.isHovering) {
+                    // 旋转固定角度
+                    STATE.rotationSpeed = Math.abs(STATE.rotationSpeed) *
+                        (Math.random() > 0.5 ? 1 : -1);
+                }
+            }, VISUALIZATION_CONFIG.autoSwitchDuration);
+        }
+
+        // 停止自动切换
+        function stopAutoSwitch() {
+            if (STATE.switchTimer) {
+                clearInterval(STATE.switchTimer);
+            }
+        }
+
+        // 切换旋转状态
+        function toggleRotation() {
+            STATE.autoRotation = !STATE.autoRotation;
+            const button = document.getElementById('pauseBtn');
+
+            if (STATE.autoRotation) {
+                button.innerHTML = '<i class="fas fa-pause"></i>暂停旋转';
+            } else {
+                button.innerHTML = '<i class="fas fa-play"></i>继续旋转';
+            }
+        }
+
+        // 更新界面时间显示
+        function updateTimeDisplay() {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            document.getElementById('timeDisplay').textContent = timeStr;
+        }
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 如果自动旋转开启
+            if (STATE.autoRotation && !STATE.isHovering) {
+                ringGroup.rotation.y += STATE.rotationSpeed;
+            }
+
+            // 确保标签始终面向相机
+            ringGroup.traverse(object => {
+                if (object.isSprite) {
+                    object.lookAt(camera.position);
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // 窗口调整大小
+        function onWindowResize() {
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        }
+
+        // 初始化事件监听
+        function setupEventListeners() {
+            // 窗口大小调整
+            window.addEventListener('resize', onWindowResize);
+
+            // 控制按钮事件
+            document.getElementById('pauseBtn').addEventListener('click', toggleRotation);
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                STATE.rotationSpeed = -Math.abs(STATE.rotationSpeed) * 1.5;
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                STATE.rotationSpeed = Math.abs(STATE.rotationSpeed) * 1.5;
+            });
+        }
+
+        // 初始化系统
+        function init() {
+            // 创建场景元素
+            createRings();
+            createProjects();
+
+            // 设置UI组件
+            setupCurrentProjectDisplay();
+            setupTooltip();
+
+            // 设置交互
+            setupHoverInteraction();
+            setupEventListeners();
+
+            // 开始动画和自动切换
+            animate();
+            startAutoSwitch();
+
+            // 初始更新时间显示
+            updateTimeDisplay();
+            setInterval(updateTimeDisplay, 1000);
+        }
+
+        // 启动系统
+        init();
+    </script>
+</body>
+
+</html>

@@ -4,104 +4,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="echarts.min.js"></script>
-    <script src="itcast.js"></script>
+    <title>风险收益水平大屏</title>
+    <script src="assets/js/echarts.min.js"></script>
+    <script src="assets/js/echarts-gl.min.js"></script>
+    <script src="assets/js/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/css/index.css" />
+    <script src="assets/js/vue.js"></script>
+    <script src="assets/js/elementIndex.js"></script>
 </head>
 
 <body>
-    <div style="height: 600px;width: 600px;">
+    <div class="dashboard">
+        <!-- 顶部栏 -->
+        <div class="dashboard-header">
+            <img src="assets/images/riskAssets/risk_logo.png" alt="" height="40px">
+            <div class="dashboard-date">
+                <el-select v-model="valueDate" placeholder="请选择" @change="handleDateChange">
+                    <el-option v-for="item in optionsDates" :key="item.value" :label="item.label" :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
+        </div>
+        <!-- 主体三栏 -->
+        <div class="dashboard-main">
+            <!-- 左侧 -->
+            <div class="dashboard-left">
+                <div class="section section-risk">
+                    <!-- 条线风险收益水平情况 -->
+                    <div class="section-risk-img">
+                        <span class="section-risk-img-title">条线风险收益水平情况</span>
+                    </div>
+                    <div class="section-assets">
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqian.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>3</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>当前风险收益水平</span></div>
+                            </div>
+                        </div>
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqian.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>2.68</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>年初风险收益水平</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section-single-red">
+                        <div class="section-risk-single">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_jiaonianchuup.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-red">
+                                    <span>0.32</span>
+                                    <span class="section-risk-red-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>较年初变化</span></div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="section section-pie">
+                        <!-- 饼图 -->
+                        <div class="pie-3d" ref="pieChartRef" id="stripLineEcharts"></div>
+                        <div class="legend-wrap-3d">
+                            <div class="legend-3d" v-for="item of legendList" @click="clickLegend(item.name)"
+                                :class="item.color">{{ item.name }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 中间 -->
+            <div class="dashboard-center">
+                <div class="section section-risk">
+                    <div class="section-risk-img">
+                        <span class="section-risk-img-title">机构风险收益水平情况表</span>
+                    </div>
+                    <div class="section-assets-center">
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqian23.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>3</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>当前风险收益水平</span></div>
+                            </div>
+                        </div>
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqian23.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>2.68</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>年初风险收益水平</span></div>
+                            </div>
+                        </div>
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_jiaonianchudown23.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-bule">
+                                    <span>0.32</span>
+                                    <span class="section-risk-blue-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>较年初变化</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section section-map">
+                        <!-- 地图 -->
+                    </div>
+                </div>
+            </div>
+            <!-- 右侧 -->
+            <div class="dashboard-right">
+                <div class="section section-risk">
+                    <div class="section-risk-img">
+                        <span class="section-risk-img-title">产品风险收益水平情况</span>
+                    </div>
+                    <div class="section-assets-center">
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqianEnt.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>3</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>当前风险收益水平</span></div>
+                            </div>
+                        </div>
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqianEnt.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>2.68</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>年初风险收益水平</span></div>
+                            </div>
+                        </div>
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_jiaonianchuupEnt.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-red">
+                                    <span>0.32</span>
+                                    <span class="section-risk-red-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>较年初变化</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section-assets-center">
+                        <!-- 个人 -->
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqianPerson.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>3</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>当前风险收益水平</span></div>
+                            </div>
+                        </div>
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_dangqianPerson.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-span">
+                                    <span>2.68</span>
+                                    <span class="section-risk-span-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>年初风险收益水平</span></div>
+                            </div>
+                        </div>
+                        <div class="section-risk-dangqian">
+                            <div class="section-risk-dangqian-img">
+                                <img src="assets/images/riskAssets/icon_upPerson.png" alt="">
+                            </div>
+                            <div class="section-risk-title">
+                                <div class="section-risk-red">
+                                    <span>0.32</span>
+                                    <span class="section-risk-red-rate">%</span>
+                                </div>
+                                <div class="section-risk-tip"><span>较年初变化</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section section-product-risk">
+                        <!-- 产品风险收益水平（3D圆环+项目） -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 底部 -->
+        <div class="dashboard-bottom">
+            <div class="section section-customer-risk">
+                <!-- 客户风险收益水平 -->
+                <div class="section-risk-img">
+                    <span class="section-risk-img-title">客户风险收益水平情况表</span>
+                </div>
+                <div class="section-assets-center">
+                    <div class="section-risk-dangqian">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_nianchu1000.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="section-risk-span">
+                                <span>3</span>
+                                <span class="section-risk-span-rate">%</span>
+                            </div>
+                            <div class="section-risk-tip"><span>当前风险收益水平</span></div>
+                        </div>
+                    </div>
+                    <div class="section-risk-dangqian">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_nianchu1000.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="section-risk-span">
+                                <span>2.68</span>
+                                <span class="section-risk-span-rate">%</span>
+                            </div>
+                            <div class="section-risk-tip"><span>年初风险收益水平</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-single-bule">
+                    <div class="section-risk-single">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_jiaonianchuup1000.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="section-risk-red">
+                                <span>0.32</span>
+                                <span class="section-risk-red-rate">%</span>
+                            </div>
+                            <div class="section-risk-tip"><span>较年初变化</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="section section-timeline">
+                <!-- 时间轴 -->
+            </div>
+        </div>
     </div>
-    <script>
-        const mCharts = echarts.init(document.querySelector('div'), 'itcast');
-        var yDataArr2 = [88, 91, 77, 89, 76, 65, 67];
-        var yDataArr1 = [88, 90, 89, 12, 76, 23, 63];
-        const option = {
-            title: {
-                text: '成绩',
-                link: 'https://codegeex.cn',
-                textStyle: {
-                    color: 'red',
-
-                }
-            },
-            grid: {
-                show: true, //展示区域内显示一个网格. 默认为true. 可以将其设置为false来
-            },
-            xAxis: {
-                type: 'category',
-                data: ['小明', '小红', '小王']
-            },
-            yAxis: {
-                type: 'value'
-            },
-            markPoint: {
-                data: [{
-                    type: 'max', name: '最大值'
-                }, {
-                    type: 'min', name: '最小值'
-                }]
-            },
-            markLine: {
-                data: [
-                    { type: 'average', name: '平均值' }
-                ]
-            },
-            legend: {
-                data: ['语文', '数学']
-            },
-            series: [{
-                name: '语文',
-                type: 'bar',
-                data: yDataArr1,
-                itemStyle: {
-                    color: {
-                        type: 'linear',//线性渐变
-                        x: 0, y: 0, x2: 0, y2: 1, colorStops: [{
-                            offset: 0, color: 'red' // 0% 处的颜色。 默认为红色。
-
-                        }, {
-                            offset: 1, color: 'blue' // 100% 处的颜色。
-                        }]
-                    }
-                }
-            }, {
-                name: '数学',
-                type: 'bar',
-                data: yDataArr2,
-                itemStyle: {
-                    color: {
-                        type: 'radial',//线性渐变
-                        x: 0.5, y: 0.5, r: 0.5, colorStops: [{
-                            offset: 0, color: 'red' // 0% 处的颜色。 默认为红色。
-
-                        }, {
-                            offset: 1, color: 'blue' // 100% 处的颜色。
-                        }]
-                    }
-                }
-            }],
-            label: {
-                show: true,
-                rotate: 60,
-                position: 'top'
-            },
-            barWidth: '60%', // 可以给图表设置一个大的边距，但是不是必需的，
-            toolbox: {
-                feature: {
-                    saveAsImage: {},//导出图片
-                    dataView: {},
-                    restore: {},//重置
-                    dataZoom: {},//区域缩放
-                    magicType: {
-                        type: ['bar', 'line']
-                    },
-                }
-            }
-        }
-        mCharts.setOption(option) // 可以将option传递给 echarts 实例，然后在其中绘制图
-    </script>
 </body>
 
 </html>
