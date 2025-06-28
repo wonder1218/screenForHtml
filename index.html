@@ -18,7 +18,9 @@
     <div class="dashboard" id="app">
         <!-- 顶部栏 -->
         <div class="dashboard-header">
-            <img src="assets/images/riskAssets/risk_logo.png" alt="" height="40px">
+            <div class="dashboard-header-logo">
+                <img src="assets/images/riskAssets/risk_logo.png" alt="" height="40px">
+            </div>
             <div class="dashboard-date">
                 <el-select v-model="valueDate" placeholder="请选择" @change="handleDateChange($event)">
                     <el-option v-for="item in optionsDates" :key="item.value" :label="item.label" :value="item.value">

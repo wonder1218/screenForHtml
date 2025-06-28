@@ -294,7 +294,7 @@ new Vue({
             specialPointData: {}, // 特殊时间点数据
             specialPointDataIndex: 0, // 特殊时间点索引
             pageIndex: 0,
-            pageSize: 5, // 一页显示几个节点
+            pageSize: 8, // 一页显示几个节点
             showItems: [], // 控制动画
             highlightIndex: 2, // 例如在第2和第3个时间点之间插入提示框
             color: ["#00BCEE", "#0BE19E", "#EAA031"],

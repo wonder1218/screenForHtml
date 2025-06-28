@@ -1,0 +1,63 @@
+<!--
+ * @Author: wonder1218 zhengwen_man@163.com
+ * @Date: 2025-06-28 18:32:47
+ * @LastEditors: wonder1218 zhengwen_man@163.com
+ * @LastEditTime: 2025-06-28 18:34:11
+ * @FilePath: \ECharts\indexTest3d.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .trapezoid-ring {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 80px auto;
+            perspective: 800px;
+        }
+
+        .trapezoid-segment {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 60px;
+            height: 40px;
+            margin: -20px -30px;
+            background: linear-gradient(180deg, #3a8ee6 60%, #1a4a7a 100%);
+            clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+            /* 梯形 */
+            box-shadow: 0 8px 16px rgba(51, 153, 255, 0.18);
+            transform-origin: 50% 120px;
+            /* 120px为半径 */
+            transform-style: preserve-3d;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="trapezoid-ring">
+        <!-- JS生成多个梯形div -->
+    </div>
+    <script>
+        const ring = document.querySelector('.trapezoid-ring');
+        const count = 12; // 分成12块
+        const radius = 120;
+        for (let i = 0; i < count; i++) {
+            const seg = document.createElement('div');
+            seg.className = 'trapezoid-segment';
+            const angle = 360 / count * i;
+            seg.style.transform = `rotateZ(${angle}deg) translateY(-${radius}px) rotateX(30deg)`;
+            // 可用不同颜色/渐变
+            ring.appendChild(seg);
+        }
+    </script>
+</body>
+
+</html>
