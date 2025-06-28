@@ -141,6 +141,13 @@ new Vue({
                 warnCondition: ['220', '182', '191'],
                 warnDistribute: ['340', '314', '292'],
             },
+            optionsDates: [
+                { value: '2025/06/30', label: '2025年6月30日' },
+                { value: '2025/03/31', label: '2025年3月31日' },
+                { value: '2024/12/31', label: '2024年12月31日' },
+                { value: '2024/09/30', label: '2024年9月30日' }
+            ],
+            valueDate: '2025/06/30', // 日期选择框的值
             series: [], // 折线图数据
             customerDistributeDataCopy: {
                 frontEarn: {
@@ -303,6 +310,28 @@ new Vue({
             isHovered: '',
             startRatio: '',
             endRatio: '',
+            items: ['A', 'B', 'C', 'D', 'E'],
+            itemsPerson: ['A', 'B', 'C', 'D', 'E'],
+            curr: 0,
+            timer: null,
+            radius: 220,
+            segCount: 15,
+            segRadius: 60,
+            totalAngle: 50,
+            auto: true,
+            // 个人
+            currPerson: 0,
+            timerPerson: null,
+            radiusPerson: 220,
+            segCountPerson: 15,
+            segRadiusPerson: 60,
+            totalAnglePerson: 50,
+            tooltip: {
+                show: false,
+                text: '',
+                x: 0,
+                y: 0
+            }
         }
     },
     created() {
@@ -428,9 +457,9 @@ new Vue({
             }
         ];
         this.pieData3DCopy = [
-            { value: this.data3D.red, percent: this.data3D.redPercent, img: 'assets/images/screenfull/smoke_red.png', name: '公司金融服务部', itemStyle: { color: '#F3410A', opacity: 0.7 } },
-            { value: this.data3D.yellow, percent: this.data3D.yellowPercent, img: 'assets/images/screenfull/smoke_yellow.png', name: '普惠及乡村振兴金融服务部', itemStyle: { color: '#FFCF37', opacity: 0.7 } },
-            { value: this.data3D.blue, percent: this.data3D.bluePercent, img: 'assets/images/screenfull/smoke_blue.png', name: '零售羚信货部', itemStyle: { color: '#065DFF', opacity: 0.7 } },
+            { value: this.data3D.red, percent: this.data3D.redPercent, img: 'assets/images/screenfull/smoke_red.png', name: '公司金融服务部', itemStyle: { color: '#F3410A', opacity: 1 } },
+            { value: this.data3D.yellow, percent: this.data3D.yellowPercent, img: 'assets/images/screenfull/smoke_yellow.png', name: '普惠及乡村振兴金融服务部', itemStyle: { color: '#FFCF37', opacity: 1 } },
+            { value: this.data3D.blue, percent: this.data3D.bluePercent, img: 'assets/images/screenfull/smoke_blue.png', name: '零售羚信货部', itemStyle: { color: '#065DFF', opacity: 1 } },
             // { value: this.data3D.notPresent, percent: this.data3D.notPresPercent, img: 'assets/images/screenfull/smoke_green.png', name: '', itemStyle: { color: '#46DADB', opacity: 0.7 } },
         ];
         this.pieData3D = JSON.parse(JSON.stringify(this.pieData3DCopy));
@@ -509,7 +538,17 @@ new Vue({
         },
         visibleData() {
             return this.elementTimeLineData.slice(this.startIndex, this.endIndex);
-        }
+        },
+        carouselStyle() {
+            return {
+                transform: `rotateY(${-this.curr * (360 / this.items.length)}deg)`,
+            };
+        },
+        carouselStylePerson() {
+            return {
+                transform: `rotateY(${-this.currPerson * (360 / this.itemsPerson.length)}deg)`,
+            };
+        },
     },
     watch: {
         visibleData() {
@@ -528,15 +567,84 @@ new Vue({
         // this.initCustomerDistributeEcharts(this.customerDistributeData);
         // this.initProductDistributeEcharts(this.customerDistributeDataCopy);
         // window.addEventListener('resize', this.handleResize); // 监听窗口 resize
+        this.timer = setInterval(this.autoPlay, 3000);
+        this.timerPerson = setInterval(this.autoPlayPerson, 3000);
     },
     beforeDestroy() {
         if (this.myChart) {
             this.myChart.dispose();
         }
         clearInterval(this.autoCycleInterval);
+        clearInterval(this.timer);
+        clearInterval(this.timerPerson);
         window.removeEventListener('resize', this.handleResize); // 移除监听
     },
     methods: {
+        showTooltip(item, e) {
+            this.tooltip.show = true;
+            this.tooltip.text = '这里是' + item + '的详细信息'; // 可自定义内容
+            this.tooltip.x = e.clientX + 20;
+            this.tooltip.y = e.clientY - 10;
+        },
+        moveTooltip(e) {
+            this.tooltip.x = e.clientX + 20;
+            this.tooltip.y = e.clientY - 10;
+        },
+        hideTooltip() {
+            this.tooltip.show = false;
+        },
+        itemStyle(i) {
+            const angle = (360 / this.items.length) * i;
+            return {
+                transform: `rotateY(${angle}deg) translateZ(${this.radius}px)`,
+            };
+        },
+        segmentStyle(j) {
+            const segAngle =
+                -this.totalAngle / 2 + j * (this.totalAngle / (this.segCount - 1));
+            return {
+                transform: `rotateY(${segAngle}deg) translateZ(${this.segRadius}px)`,
+            };
+        },
+        next() {
+            this.curr = (this.curr + 1) % this.items.length;
+            this.currPerson = (this.currPerson + 1) % this.itemsPerson.length;
+        },
+        prev() {
+            this.curr = (this.curr - 1 + this.items.length) % this.items.length;
+            this.currPerson = (this.currPerson - 1 + this.itemsPerson.length) % this.itemsPerson.length;
+        },
+        pause() {
+            this.auto = false;
+        },
+        resume() {
+            this.auto = true;
+        },
+        autoPlay() {
+            if (this.auto) {
+                this.next();
+            }
+        },
+        // 个人
+        itemStylePerson(i) {
+            const anglePerson = (360 / this.items.length) * i;
+            return {
+                transform: `rotateY(${anglePerson}deg) translateZ(${this.radiusPerson}px)`,
+            };
+        },
+        segmentStylePerson(j) {
+            const segAnglePerson =
+                -this.totalAnglePerson / 2 + j * (this.totalAnglePerson / (this.segCountPerson - 1));
+            return {
+                transform: `rotateY(${segAnglePerson}deg) translateZ(${this.segRadiusPerson}px)`,
+            };
+        },
+        pausePerson() {
+            this.auto = false;
+        },
+        resumePerson() {
+            this.auto = true;
+        },
         clickLegend(name) {
             for (let item of this.legendList) {
                 if (name == item.name) {
@@ -684,6 +792,15 @@ new Vue({
             this.chart3D.setOption(this.optionPie3d, true);
             this.chart3D.on('mouseover', this.onChartMouseOver);
             this.chart3D.on('globalout', this.onChartGlobalOut);
+        },
+        /**
+         * @author wzheng
+         * @date 2025年6月20日21:02:01
+         * @description 时间切换事件
+         */
+        handleDateChange(event) {
+            console.log("当前选择的时间是：" + event);
+            this.initPie3d();
         },
         /**
          * @descripition 鼠标滑过3d图表时触发的事件

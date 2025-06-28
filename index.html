@@ -11,15 +11,16 @@
     <link rel="stylesheet" type="text/css" href="assets/css/index.css" />
     <script src="assets/js/vue.js"></script>
     <script src="assets/js/elementIndex.js"></script>
+    <link rel="stylesheet" href="assets/css/elementIndex.css">
 </head>
 
 <body>
-    <div class="dashboard">
+    <div class="dashboard" id="app">
         <!-- 顶部栏 -->
         <div class="dashboard-header">
             <img src="assets/images/riskAssets/risk_logo.png" alt="" height="40px">
             <div class="dashboard-date">
-                <el-select v-model="valueDate" placeholder="请选择" @change="handleDateChange">
+                <el-select v-model="valueDate" placeholder="请选择" @change="handleDateChange($event)">
                     <el-option v-for="item in optionsDates" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
@@ -131,6 +132,8 @@
                     </div>
                     <div class="section section-map">
                         <!-- 地图 -->
+                        <!-- <div class="section-map-img"><img src="assets/images/riskAssets/mapLine.png" alt=""></div> -->
+                        <div id="mapDiv" style="height: 600px; width: 800px"></div>
                     </div>
                 </div>
             </div>
@@ -219,17 +222,80 @@
                     </div>
                     <div class="section section-product-risk">
                         <!-- 产品风险收益水平（3D圆环+项目） -->
+                        <div class="carousel3d-container">
+                            <div @click="prev" class="btn3d">
+                                <img src="assets/images/riskAssets/icon_jiantou.png" alt="">
+                            </div>
+                            <div>
+                                <div class="carousel3d-title">
+                                    <div class="carousel3d-title-per"><span>个人信贷产品</span></div>
+                                    <div class="carousel3d-title-number">
+                                        <div><span>有效产品总数</span></div>
+                                        <div><span>27</span></div>
+                                    </div>
+                                </div>
+                                <div class="carousel3d-wrap">
+                                    <!-- <button class="carousel-btn prev" @click="prev">&#8592;</button> -->
+                                    <div class="carousel3d" ref="carousel3d" @mouseenter="pause" @mouseleave="resume"
+                                        :style="carouselStyle">
+                                        <div v-for="(item, i) in items" :key="i" class="carousel-item"
+                                            :style="itemStyle(i)" @mouseenter="showTooltip(item, $event)"
+                                            @mousemove="moveTooltip($event)" @mouseleave="hideTooltip">
+                                            <div class="brick3d">
+                                                <div v-for="j in segCount" :key="j" class="brick-segment"
+                                                    :style="segmentStyle(j-1)"></div>
+                                            </div>
+                                            <div class="carousel-item-label">{{ item }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- <button class="carousel-btn next" @click="next">&#8594;</button> -->
+                                </div>
+                                <div class="carousel3d-title">
+                                    <div class="carousel3d-title-per"><span>对公信贷产品</span></div>
+                                    <div class="carousel3d-title-number">
+                                        <div><span>有效产品总数</span></div>
+                                        <div><span>27</span></div>
+                                    </div>
+                                </div>
+                                <div class="carousel3d-wrap-person">
+                                    <!-- <button class="carousel-btn prev" @click="prev">&#8592;</button> -->
+                                    <div class="carousel3d" ref="carousel3d" @mouseenter="pausePerson"
+                                        @mouseleave="resumePerson" :style="carouselStylePerson">
+                                        <div v-for="(item, i) in itemsPerson" :key="i" class="carousel-item"
+                                            :style="itemStylePerson(i)" @mouseenter="showTooltip(item, $event)"
+                                            @mousemove="moveTooltip($event)" @mouseleave="hideTooltip">
+                                            <div class="brick3d">
+                                                <div v-for="j in segCountPerson" :key="j" class="brick-segment"
+                                                    :style="segmentStylePerson(j-1)"></div>
+                                            </div>
+                                            <div class="carousel-item-label">{{ item }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- <button class="carousel-btn next" @click="next">&#8594;</button> -->
+                                </div>
+                            </div>
+                            <div @click="next" class="btn3d">
+                                <img src="assets/images/riskAssets/icon_jiantou.png" alt="">
+                            </div>
+                            <div v-if="tooltip.show" class="custom-tooltip"
+                                :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }">
+                                {{ tooltip.text }}
+                            </div>
+                        </div>
+                        <div class="fake3d-ring"></div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- 客户风险收益水平 -->
+        <div class="section-split-img">
+            <span class="section-split-title">客户风险收益水平情况表</span>
+        </div>
         <!-- 底部 -->
         <div class="dashboard-bottom">
             <div class="section section-customer-risk">
-                <!-- 客户风险收益水平 -->
-                <div class="section-risk-img">
-                    <span class="section-risk-img-title">客户风险收益水平情况表</span>
-                </div>
                 <div class="section-assets-center">
                     <div class="section-risk-dangqian">
                         <div class="section-risk-dangqian-img">
@@ -273,9 +339,53 @@
             </div>
             <div class="section section-timeline">
                 <!-- 时间轴 -->
+                <div class="timeline-horizontal-container" id="timeline-horizontal-container">
+                    <div class="timeline-horizontal-content">
+                        <div @click="prevPage" :disabled="pageIndex === 0">
+                            <img src="assets/images/riskAssets/icon_jiantou.png" alt="">
+                        </div>
+                        <!-- <el-button @click="prevPage" :disabled="pageIndex === 0" icon="el-icon-arrow-left"></el-button> -->
+                        <div class="timeline-horizontal">
+                            <div v-for="(item, idx) in visibleData" :key="item.id" class="timeline-horizontal-item"
+                                :class="{ 'fade-in': showItems[idx] }" ref="timelineItem"
+                                class="timeline-horizontal-item">
+                                <!-- <div class="timeline-dot"></div> -->
+                                <!-- <div class="timeline-label">{{ item.year }}</div> -->
+                                <!-- 在第2和第3个时间点之间插入提示框 -->
+                                <template v-if="item.tip">
+                                    <div class="between-tip-box">
+                                        <div class="tip-content">
+                                            2020年<br>
+                                            某政府数字化转型
+                                        </div>
+                                        <!-- 连接线 -->
+                                        <div class="tip-connector"></div>
+                                    </div>
+                                </template>
+                                <el-popover placement="bottom" width="200" trigger="hover" :content="item.desc">
+                                    <div slot="reference" class="timeline-dot"></div>
+                                </el-popover>
+                                <div class="timeline-label">
+                                    <div class="itemLine-green">{{ item.year }}</div>
+                                    <div>{{ item.platform }}</div>
+                                    <div>{{ item.desc }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div @click="nextPage" :disabled="endIndex >= elementTimeLineData.length">
+                            <img src="assets/images/riskAssets/icon_jiantou.png" alt="">
+                        </div>
+                        <!-- <el-button @click="nextPage" :disabled="endIndex >= elementTimeLineData.length"
+                            icon="el-icon-arrow-right"></el-button> -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- <script type="module" src="assets/js/createThree.js"></script> -->
+    <script src="assets/js/createVue.js"></script>
+    <script src="assets/js/map.js"></script>
 </body>
 
 </html>

@@ -156,7 +156,6 @@ function initChart(mapData) {
         echarts.registerMap(areaName, geoJson);
         // 初始化地图
         if (areaName == "北京市") {
-            debugger
             const centerMap = {};
             let featuresArr = [];
             // 给地图颜色
@@ -250,12 +249,12 @@ function initChart(mapData) {
                                 show: true,
                                 title: "还原",
                                 iconStyle: {
-                                    borderColor: "#ffffff",
+                                    borderColor: "#408ed5",
                                     // borderColor: '#3E9CFF',
                                 },
                             },
                         },
-                        right: 40,
+                        right: 80,
                         top: 40,
                     },
                     geo: [
@@ -284,6 +283,18 @@ function initChart(mapData) {
                             roam: true,
                             silent: true,
                             itemStyle: {
+                                areaColor: {
+                                    type: "linear",
+                                    x: 0,
+                                    y: 0,
+                                    x2: 0,
+                                    y2: 1,
+                                    colorStops: [
+                                        { offset: 0, color: "#74a5df" },
+                                        { offset: 1, color: "#4491d7" },
+                                    ],
+                                    global: false,
+                                },
                                 normal: {
                                     borderColor: "rgba(121, 222, 237, 0.5)",
                                     areaColor: "rgba(133, 242, 255, 0)",
@@ -319,9 +330,20 @@ function initChart(mapData) {
                                 //     borderWidth: '2',
                                 //     borderColor: '#85F2FF',
                                 // },
-                                // areaColor: '#1d5669',
+                                areaColor: {
+                                    type: "linear",
+                                    x: 0,
+                                    y: 0,
+                                    x2: 0,
+                                    y2: 1,
+                                    colorStops: [
+                                        { offset: 0, color: "#74a5df" },
+                                        { offset: 1, color: "#4491d7" },
+                                    ],
+                                    global: false,
+                                },
                                 // areaColor: 'rgba(15, 59, 111, 1)',
-                                color: "#081A30CC",
+                                // color: "#081A30CC",
                                 emphasis: {
                                     areaColor: "rgba(15, 59, 111, 1)",
                                     borderWidth: 0,
@@ -344,7 +366,7 @@ function initChart(mapData) {
                             layoutCenter: ["50%", "54%"],
                             animationDurationUpdate: 0,
                             aspectScale: 1,
-                            layoutSize: "180%",
+                            layoutSize: "190%",
                             zoom: 0.65,
                             // layoutSize: '100%',
                             // zoom: 1.2,
@@ -367,8 +389,8 @@ function initChart(mapData) {
                                     borderColor: "rgba(67 ,109 ,180, 0.1)",
                                     // borderWidth: 0.5,
                                     // areaColor: '#76acc4',
-                                    areaColor: "rgba(133, 242, 255, 0.8)",
-                                    shadowColor: "rgba(0, 10, 26,0.6)",
+                                    areaColor: "#b7d0ee",
+                                    shadowColor: "#b7d0ee",
                                     // shadowOffsetX: -39,
                                     //shadowBlur: 65
                                 },
@@ -500,12 +522,12 @@ function initChart(mapData) {
                             show: true,
                             title: "还原",
                             iconStyle: {
-                                borderColor: "#ffffff",
+                                borderColor: "#408ed5",
                                 // borderColor: '#3E9CFF',
                             },
                         },
                     },
-                    right: 40,
+                    right: 80,
                     top: 40,
                 },
                 geo: [
@@ -530,6 +552,18 @@ function initChart(mapData) {
                         roam: false,
                         silent: true,
                         itemStyle: {
+                            areaColor: {
+                                type: "linear",
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: "#74a5df" },
+                                    { offset: 1, color: "#4491d7" },
+                                ],
+                                global: false,
+                            },
                             normal: {
                                 borderColor: "rgba(121, 222, 237, 0.5)",
                                 borderWidth: 1.5,
@@ -573,7 +607,18 @@ function initChart(mapData) {
                             //     borderWidth: '2',
                             //     borderColor: '#85F2FF',
                             // },
-                            color: "#081A30CC",
+                            areaColor: {
+                                type: "linear",
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: "#74a5df" },
+                                    { offset: 1, color: "#4491d7" },
+                                ],
+                                global: false,
+                            },
                             emphasis: {
                                 areaColor: "rgba(15, 59, 111, 1)",
                                 borderWidth: 0,
@@ -594,7 +639,7 @@ function initChart(mapData) {
                             show: false,
                         },
                         layoutCenter: ["50%", "52%"],
-                        layoutSize: "72%",
+                        layoutSize: "80%",
                         zoom: 1.2,
                         scaleLimit: {
                             min: 0.5,
@@ -615,8 +660,8 @@ function initChart(mapData) {
                                 borderColor: "rgba(67 ,109 ,180, 0.1)",
                                 // borderWidth: 0.5,
                                 // areaColor: '#76acc4',
-                                areaColor: "rgba(133, 242, 255, 0.8)",
-                                shadowColor: "rgba(0, 10, 26,0.6)",
+                                areaColor: "#b7d0ee",
+                                shadowColor: "#b7d0ee",
                                 // shadowOffsetX: -39,
                                 //shadowBlur: 65
                             },
