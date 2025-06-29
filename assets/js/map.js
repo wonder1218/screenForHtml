@@ -435,67 +435,39 @@ function initChart(mapData) {
                                     // console.log(params)
                                     let data = params.data;
                                     let html = "";
-                                    if (data.balance) {
-                                        let balance = (data.balance * 1)
-                                            .toFixed(2)
-                                            .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                        let overduerate = (data.overduerate * 1)
-                                            .toFixed(2)
-                                            .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                        let overdueloanrate = (data.overdueloanrate * 1)
-                                            .toFixed(2)
-                                            .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                        let badbalance = (data.badbalance * 1)
-                                            .toFixed(2)
-                                            .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                        let balancerate = (data.balancerate * 1)
-                                            .toFixed(2)
-                                            .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                        // 数据长时宽度变大
-                                        let backgroudStyle =
-                                            "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 295px 219px;";
-                                        if (balance.length > 4 && badbalance.length > 4) {
-                                            backgroudStyle =
-                                                "height: 220px;width: 316px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 315px 219px;";
-                                        }
-                                        html = `<div class="map-tooltip" style="${backgroudStyle}">
+                                    let balance = (data.balance * 1)
+                                        .toFixed(2)
+                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                    let overduerate = (data.overduerate * 1)
+                                        .toFixed(2)
+                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                    let overdueloanrate = (data.overdueloanrate * 1)
+                                        .toFixed(2)
+                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                    let badbalance = (data.badbalance * 1)
+                                        .toFixed(2)
+                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                    let balancerate = (data.balancerate * 1)
+                                        .toFixed(2)
+                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                    // 数据长时宽度变大
+                                    let backgroudStyle =
+                                        "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 295px 219px;";
+                                    if (balance.length > 4 && badbalance.length > 4) {
+                                        backgroudStyle =
+                                            "height: 220px;width: 316px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 315px 219px;";
+                                    }
+                                    html = `<div class="map-tooltip" style="${backgroudStyle}">
                                                                 <div class="map-tooltip-title" style="display: flex;height: 50px;justify-content: center;align-items: center;height: 50px;">
-                                                                    <img style="height: 30px;width: 30px;" src="assets/images/screenfull/tooltip_logo.png">
                                                                     <div style="color: #FF4F4F;font-family: PingFang SC;font-size: 20px;">${data.bankName}</div>
                                                                 </div>
                                                                 <div class="map-tooltip-content" style="display: flex;justify-content: space-between;padding: 10px 10px 12px 10px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
                                                                     <div style="margin-right: 12px;display: flex; flex-direction: column; align-items: flex-start;width: 120px;">
                                                                         <div>风险收益水平：${overduerate}%</div>
-                                                                        <div style="margin-left: 12px;">加权平均利率：${overduerate}%</div>
-                                                                    </div>
-                                                                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                                                        <div>中间业务收入类：${overdueloanrate}%</div>
-                                                                        <div style="margin-left: 12px;">风险成本率：${balancerate}%</div>
                                                                     </div>
                                                                 </div>
                                                             </div>`;
-                                        return html;
-                                    } else {
-                                        html = `<div class="map-tooltip" style="position: relative;height: 172px;width: 320px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_smoke_bg.png) no-repeat;background-size: 320px 172px;">
-                                                            <div style="display: flex;align-items: center;position: absolute;height: 98px; width: 320px;top: 0;">
-                                                                <div style="width: 64px;display: flex; justify-content: center;">
-                                                                    <img style="height: 30px;width: 30px;" src="assets/images/screenfull/tooltip_logo.png">
-                                                                </div>
-                                                                <div class="map-tooltip-content" style="padding: 12px 12px 8px 12px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
-                                                                    <div style="color: #FF4F4F;font-family: PingFang SC;font-size: 20px;margin-bottom: 6px;">${data.type}</div>
-                                                                    <div style="margin-right: 12px;display: flex;">
-                                                                        <div>风险收益水平：${data.overduerate}%</div>
-                                                                        <div style="margin-left: 12px;">加权平均利率：${data.overduerate}%</div>
-                                                                    </div>
-                                                                    <div style="display: flex;">
-                                                                        <div style="color:#FFCF5F;margin-left: 12px;">中间业务收入类：${data.overdueloanrate}%</div>
-                                                                        <div style="color:#3E9CFF;margin-left: 12px;">风险成本率：${data.balancerate}%</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>`;
-                                        return html;
-                                    }
+                                    return html;
                                 },
                             },
                             data: mapData,
@@ -688,67 +660,39 @@ function initChart(mapData) {
                                 // console.log(params)
                                 let data = params.data;
                                 let html = "";
-                                if (data.balance) {
-                                    let balance = (data.balance * 1)
-                                        .toFixed(2)
-                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                    let overduerate = (data.overduerate * 1)
-                                        .toFixed(2)
-                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                    let overdueloanrate = (data.overdueloanrate * 1)
-                                        .toFixed(2)
-                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                    let badbalance = (data.badbalance * 1)
-                                        .toFixed(2)
-                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                    let balancerate = (data.balancerate * 1)
-                                        .toFixed(2)
-                                        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-                                    // 数据长时宽度变大
-                                    let backgroudStyle =
-                                        "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 295px 219px;";
-                                    if (balance.length > 4 && badbalance.length > 4) {
-                                        backgroudStyle =
-                                            "height: 220px;width: 316px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 315px 219px;";
-                                    }
-                                    html = `<div class="map-tooltip" style="${backgroudStyle}">
+                                let balance = (data.balance * 1)
+                                    .toFixed(2)
+                                    .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                let overduerate = (data.overduerate * 1)
+                                    .toFixed(2)
+                                    .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                let overdueloanrate = (data.overdueloanrate * 1)
+                                    .toFixed(2)
+                                    .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                let badbalance = (data.badbalance * 1)
+                                    .toFixed(2)
+                                    .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                let balancerate = (data.balancerate * 1)
+                                    .toFixed(2)
+                                    .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+                                // 数据长时宽度变大
+                                let backgroudStyle =
+                                    "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 295px 219px;";
+                                if (balance.length > 4 && badbalance.length > 4) {
+                                    backgroudStyle =
+                                        "height: 220px;width: 316px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_bg.png) no-repeat;background-size: 315px 219px;";
+                                }
+                                html = `<div class="map-tooltip" style="${backgroudStyle}">
                                                             <div class="map-tooltip-title" style="display: flex;height: 50px;justify-content: center;align-items: center;height: 50px;">
-                                                                <img style="height: 30px;width: 30px;" src="assets/images/screenfull/tooltip_logo.png">
                                                                 <div style="color: #FF4F4F;font-family: PingFang SC;font-size: 20px;">${data.bankName}</div>
                                                             </div>
                                                             <div class="map-tooltip-content" style="display: flex;justify-content: space-between;padding: 10px 10px 12px 10px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
                                                                 <div style="margin-right: 12px;display: flex; flex-direction: column; align-items: flex-start;width: 120px;">
                                                                     <div style="margin-left: 12px;">风险收益水平：${overduerate}%</div>
-                                                                    <div style="margin-left: 12px;">加权平均利率：${overduerate}%</div>
-                                                                </div>
-                                                                <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                                                    <div>中间业务收入类：${overdueloanrate}%</div>
-                                                                    <div style="margin-left: 12px;">风险成本率：${balancerate}%</div>
                                                                 </div>
                                                             </div>
                                                         </div>`;
-                                    return html;
-                                } else {
-                                    html = `<div class="map-tooltip" style="position: relative;height: 172px;width: 320px;padding-top: 8px;background:url(assets/images/screenfull/tooltip_smoke_bg.png) no-repeat;background-size: 320px 172px;">
-                                                        <div style="display: flex;align-items: center;position: absolute;height: 98px; width: 320px;top: 0;">
-                                                            <div style="width: 64px;display: flex; justify-content: center;">
-                                                                <img style="height: 30px;width: 30px;" src="assets/images/screenfull/tooltip_logo.png">
-                                                            </div>
-                                                            <div class="map-tooltip-content" style="padding: 12px 12px 8px 12px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
-                                                                <div style="color: #FF4F4F;font-family: PingFang SC;font-size: 20px;margin-bottom: 6px;">${data.type}</div>
-                                                                <div style="margin-right: 12px;display: flex;">
-                                                                    <div>风险收益水平：${data.overduerate}%</div>
-                                                                    <div style="margin-left: 12px;">加权平均利率：${data.overduerate}%</div>
-                                                                </div>
-                                                                <div style="display: flex;">
-                                                                    <div style="color:#FFCF5F;margin-left: 12px;">中间业务收入类：${data.overdueloanrate}%</div>
-                                                                    <div style="color:#3E9CFF;margin-left: 12px;">风险成本率：${data.balancerate}%</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>`;
-                                    return html;
-                                }
+                                return html;
                             },
                         },
                         data: mapData2,
