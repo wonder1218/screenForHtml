@@ -567,7 +567,7 @@ new Vue({
         // this.initProductDistributeEcharts(this.customerDistributeDataCopy);
         // window.addEventListener('resize', this.handleResize); // 监听窗口 resize
         this.timer = setInterval(this.autoPlay, 3000);
-        this.timerPerson = setInterval(this.autoPlayPerson, 3000);
+        this.timerPerson = setInterval(this.autoPlay, 3000);
     },
     beforeDestroy() {
         if (this.myChart) {
@@ -606,10 +606,12 @@ new Vue({
             };
         },
         next() {
+            this.auto = false;  // 停止自动播放
             this.curr = (this.curr + 1) % this.items.length;
             this.currPerson = (this.currPerson + 1) % this.itemsPerson.length;
         },
         prev() {
+            this.auto = false;  // 停止自动播放
             this.curr = (this.curr - 1 + this.items.length) % this.items.length;
             this.currPerson = (this.currPerson - 1 + this.itemsPerson.length) % this.itemsPerson.length;
         },

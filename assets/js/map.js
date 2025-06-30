@@ -453,21 +453,15 @@ function initChart(mapData) {
                                         .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
                                     // 数据长时宽度变大
                                     let backgroudStyle =
-                                        "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/riskAssets/bg_map_select.png) no-repeat;background-size: 295px 219px;";
-                                    if (balance.length > 4 && badbalance.length > 4) {
-                                        backgroudStyle =
-                                            "height: 220px;width: 316px;padding-top: 8px;background:url(assets/images/riskAssets/bg_map_select.png) no-repeat;background-size: 315px 219px;";
-                                    }
+                                    "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/riskAssets/icon-map-pre.png) no-repeat;background-size: 295px 219px;";
                                     html = `<div class="map-tooltip" style="${backgroudStyle}">
-                                                                <div class="map-tooltip-title" style="display: flex;height: 50px;justify-content: center;align-items: center;height: 50px;">
-                                                                    <div style="color: #FF4F4F;font-family: PingFang SC;font-size: 20px;">${data.bankName}</div>
-                                                                </div>
-                                                                <div class="map-tooltip-content" style="display: flex;justify-content: space-between;padding: 10px 10px 12px 10px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
-                                                                    <div style="margin-right: 12px;display: flex; flex-direction: column; align-items: flex-start;width: 120px;">
-                                                                        <div>风险收益水平：${overduerate}%</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>`;
+                                                <div class="map-tooltip-title" style="display: flex;justify-content: center;align-items: center;">
+                                                    <div style="color:rgb(248, 242, 242);font-family: PingFang SC;font-size: 24px;">${data.bankName}</div>
+                                                </div>
+                                                <div class="map-tooltip-content" style="display: flex;justify-content: space-between;color:rgb(17, 15, 15);font-family: PingFang SC;font-weight: semibold;font-size: 20px;margin-top: 20px;">
+                                                    <div style="margin-left: 12px;">风险收益水平：<span style="color: blue;font-size: 22px">${overduerate}%</span></div>
+                                                </div>
+                                            </div>`;
                                     return html;
                                 },
                             },
@@ -679,21 +673,15 @@ function initChart(mapData) {
                                     .replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
                                 // 数据长时宽度变大
                                 let backgroudStyle =
-                                    "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/riskAssets/bg_map_select.png) no-repeat;background-size: 295px 219px;";
-                                if (balance.length > 4 && badbalance.length > 4) {
-                                    backgroudStyle =
-                                        "height: 220px;width: 316px;padding-top: 8px;background:url(assets/images/riskAssets/bg_map_select.png) no-repeat;background-size: 315px 219px;";
-                                }
+                                    "height: 220px;width: 296px;padding-top: 8px;background:url(assets/images/riskAssets/icon-map-pre.png) no-repeat;background-size: 295px 219px;";
                                 html = `<div class="map-tooltip" style="${backgroudStyle}">
-                                                            <div class="map-tooltip-title" style="display: flex;height: 50px;justify-content: center;align-items: center;height: 50px;">
-                                                                <div style="color: #FF4F4F;font-family: PingFang SC;font-size: 20px;">${data.bankName}</div>
-                                                            </div>
-                                                            <div class="map-tooltip-content" style="display: flex;justify-content: space-between;padding: 10px 10px 12px 10px;color: #FFFFFF;font-family: PingFang SC;font-weight: semibold;font-size: 12px;line-height: 24px;">
-                                                                <div style="margin-right: 12px;display: flex; flex-direction: column; align-items: flex-start;width: 120px;">
-                                                                    <div style="margin-left: 12px;">风险收益水平：${overduerate}%</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>`;
+                                            <div class="map-tooltip-title" style="display: flex;justify-content: center;align-items: center;">
+                                                <div style="color:rgb(248, 242, 242);font-family: PingFang SC;font-size: 24px;">${data.bankName}</div>
+                                            </div>
+                                            <div class="map-tooltip-content" style="display: flex;justify-content: space-between;color:rgb(17, 15, 15);font-family: PingFang SC;font-weight: semibold;font-size: 20px;margin-top: 20px;">
+                                                <div style="margin-left: 12px;">风险收益水平：<span style="color: blue;font-size: 22px">${overduerate}%</span></div>
+                                            </div>
+                                        </div>`;
                                 return html;
                             },
                         },
