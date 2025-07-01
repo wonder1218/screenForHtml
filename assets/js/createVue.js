@@ -319,6 +319,7 @@ new Vue({
             segRadius: 60,
             totalAngle: 50,
             auto: true,
+            autoPlayPerson: true,
             // 个人
             currPerson: 0,
             timerPerson: null,
@@ -567,7 +568,7 @@ new Vue({
         // this.initProductDistributeEcharts(this.customerDistributeDataCopy);
         // window.addEventListener('resize', this.handleResize); // 监听窗口 resize
         this.timer = setInterval(this.autoPlay, 3000);
-        this.timerPerson = setInterval(this.autoPlay, 3000);
+        this.timerPerson = setInterval(this.autoPlayPerson, 3000);
     },
     beforeDestroy() {
         if (this.myChart) {
@@ -606,12 +607,12 @@ new Vue({
             };
         },
         next() {
-            this.auto = false;  // 停止自动播放
+            // this.auto = false;  // 停止自动播放
             this.curr = (this.curr + 1) % this.items.length;
             this.currPerson = (this.currPerson + 1) % this.itemsPerson.length;
         },
         prev() {
-            this.auto = false;  // 停止自动播放
+            // this.auto = false;  // 停止自动播放
             this.curr = (this.curr - 1 + this.items.length) % this.items.length;
             this.currPerson = (this.currPerson - 1 + this.itemsPerson.length) % this.itemsPerson.length;
         },
@@ -788,7 +789,7 @@ new Vue({
             this.chart3D = echarts.init(document.getElementById("stripLineEcharts"));
             this.optionPie3d = this.getPie3D(
                 this.pieData3D,
-                0    // 可做为调整内环大小
+                0.6    // 可做为调整内环大小
             );
             this.chart3D.setOption(this.optionPie3d, true);
             this.chart3D.on('mouseover', this.onChartMouseOver);
