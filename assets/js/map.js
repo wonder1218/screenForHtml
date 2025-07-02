@@ -290,7 +290,8 @@ function initChart(mapData) {
                                 },
                                 normal: {
                                     borderColor: "rgba(121, 222, 237, 0.5)",
-                                    areaColor: "rgba(133, 242, 255, 0)",
+                                    // areaColor: "rgba(139, 237, 248, 0)",
+                                    areaColor: "rgba(123, 170, 226, 0)",
                                     borderWidth: 1,
                                     borderJoin: "round",
                                 },
@@ -515,26 +516,14 @@ function initChart(mapData) {
                         roam: false,
                         silent: true,
                         itemStyle: {
-                            areaColor: {
-                                image: mapTexture,
-                                repeat: 'repeat'
-                            },
                             normal: {
                                 borderColor: "rgba(121, 222, 237, 0.5)",
                                 borderWidth: 1.5,
                                 borderJoin: "round",
                                 // areaColor: 'rgba(133, 242, 255, 0)',
                                 areaColor: {
-                                    type: "linear",
-                                    x: 0,
-                                    y: 0,
-                                    x2: 0,
-                                    y2: 1,
-                                    colorStops: [
-                                        { offset: 0, color: "rgba(35, 255, 255, 0.2)" },
-                                        { offset: 1, color: "rgba(34, 114, 130, 0.2)" },
-                                    ],
-                                    global: false,
+                                    image: mapTexture,
+                                    repeat: 'repeat'
                                 },
                             },
                             emphasis: {
