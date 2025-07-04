@@ -1,313 +1,292 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="echarts.min.js"></script>
-    <script src="itcast.js"></script>
+    <title>风险收益水平大屏布局</title>
+    <script src="assets/js/echarts.min.js"></script>
+    <script src="assets/js/echarts-gl.min.js"></script>
+    <script src="assets/js/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/css/indexTest.css" />
+    <script src="assets/js/vue.js"></script>
+    <script src="assets/js/elementIndex.js"></script>
+    <link rel="stylesheet" href="assets/css/elementIndex.css">
 </head>
 
 <body>
-    <div style="height: 600px;width: 600px;">
+    <div class="dashboard" id="app">
+        <!-- 顶部栏 -->
+        <header class="dashboard-header">
+            <div class="dashboard-header-logo">
+                <img src="assets/images/riskAssets/risk_logo.png" alt="" height="40px">
+            </div>
+            <div class="dashboard-date">
+                <el-select v-model="valueDate" placeholder="请选择" @change="handleDateChange($event)">
+                    <el-option v-for="item in optionsDates" :key="item.value" :label="item.label" :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
+        </header>
 
+        <!-- 中部三栏 -->
+        <main class="dashboard-main">
+            <!-- 左侧：条线风险收益 -->
+            <section class="dashboard-section section-left">
+                <div class="section-title"><span style="margin-left: 30px;">条线风险收益水平情况</span></div>
+                <div class="card-group">
+                    <div class="card">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_dangqian.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="card-value">3<span class="card-unit">%</span></div>
+                            <div class="card-label">当前风险收益水平</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_dangqian.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="card-value">2.68<span class="card-unit">%</span></div>
+                            <div class="card-label">年初风险收益水平</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="section-risk-dangqian-img">
+                        <img src="assets/images/riskAssets/icon_jiaonianchuup.png" alt="">
+                    </div>
+                    <div class="section-risk-title">
+                        <div class="section-risk-red">0.32<span class="section-risk-red-rate">%</span></div>
+                        <div class="card-label">较年初变化</div>
+                    </div>
+                </div>
+                <!-- 饼图 -->
+                <div class="echarts-3d" ref="pieChartRef" id="stripLineEcharts"></div>
+                <div class="legend-wrap-3d">
+                    <div class="legend-3d" v-for="item of legendList" @click="clickLegend(item.name)"
+                        :class="item.color">{{ item.name }}</div>
+                </div>
+            </section>
+
+            <!-- 中间：机构风险收益 -->
+            <section class="dashboard-section section-center">
+                <div class="section-title"><span style="margin-left: 30px;">机构风险收益水平情况表</span></div>
+                <div class="card-group">
+                    <div class="card card-blue">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_dangqian23.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="section-risk-span">
+                                <span>2.68</span>
+                                <span class="section-risk-span-rate">%</span>
+                            </div>
+                            <div class="card-label">当前风险收益水平</div>
+                        </div>
+
+                    </div>
+                    <div class="card card-blue">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_dangqian23.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="section-risk-span">
+                                <span>2.68</span>
+                                <span class="section-risk-span-rate">%</span>
+                            </div>
+                            <div class="card-label">年初风险收益水平</div>
+                        </div>
+
+                    </div>
+                    <div class="card card-green">
+                        <div class="section-risk-dangqian-img">
+                            <img src="assets/images/riskAssets/icon_jiaonianchudown23.png" alt="">
+                        </div>
+                        <div class="section-risk-title">
+                            <div class="section-risk-bule">
+                                <span>0.32</span>
+                                <span class="section-risk-blue-rate">%</span>
+                            </div>
+                            <div class="card-label">较年初变化</div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- 地图 -->
+                <div class="section-map" id="mapDiv" style="height: 100%; width: 100%"></div>
+            </section>
+
+            <!-- 右侧：产品风险收益 -->
+            <section class="dashboard-section section-right">
+                <div class="section-title"><span style="margin-left: 30px;">产品风险收益水平情况</span></div>
+                <div class="card-group">
+                    <div class="card card-blue">
+                        <div class="card-value">3<span class="card-unit">%</span></div>
+                        <div class="card-label">当前风险收益水平</div>
+                    </div>
+                    <div class="card card-blue">
+                        <div class="card-value">2.68<span class="card-unit">%</span></div>
+                        <div class="card-label">年初风险收益水平</div>
+                    </div>
+                    <div class="card card-red">
+                        <div class="card-value">0.32<span class="card-unit">%</span></div>
+                        <div class="card-label">较年初变化</div>
+                    </div>
+                </div>
+                <div class="card-group">
+                    <div class="card card-blue">
+                        <div class="card-value">3<span class="card-unit">%</span></div>
+                        <div class="card-label">当前风险收益水平</div>
+                    </div>
+                    <div class="card card-blue">
+                        <div class="card-value">2.68<span class="card-unit">%</span></div>
+                        <div class="card-label">年初风险收益水平</div>
+                    </div>
+                    <div class="card card-red">
+                        <div class="card-value">0.32<span class="card-unit">%</span></div>
+                        <div class="card-label">较年初变化</div>
+                    </div>
+                </div>
+                <div class="echarts-3d">
+                    <div class="carousel3d-container">
+                        <div @click="prev" class="btn3d">
+                            <img src="assets/images/riskAssets/icon_jiantou.png" alt="">
+                        </div>
+                        <div>
+                            <div class="carousel3d-title">
+                                <div class="carousel3d-title-per"><span>个人信贷产品</span></div>
+                                <div class="carousel3d-title-number">
+                                    <div><span>有效产品总数</span></div>
+                                    <div><span>27</span></div>
+                                </div>
+                            </div>
+                            <div class="carousel3d-wrap">
+                                <!-- <button class="carousel-btn prev" @click="prev">&#8592;</button> -->
+                                <div class="carousel3d" ref="carousel3d" @mouseenter="pause" @mouseleave="resume"
+                                    :style="carouselStyle">
+                                    <div v-for="(item, i) in items" :key="i" class="carousel-item" :style="itemStyle(i)"
+                                        @mouseenter="showTooltip(item, $event)" @mousemove="moveTooltip($event)"
+                                        @mouseleave="hideTooltip">
+                                        <div class="brick3d">
+                                            <div v-for="j in segCount" :key="j" class="brick-segment"
+                                                :style="segmentStyle(j-1)"></div>
+                                        </div>
+                                        <div class="carousel-item-label">{{ item }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <button class="carousel-btn next" @click="next">&#8594;</button> -->
+                            </div>
+                            <div class="carousel3d-title">
+                                <div class="carousel3d-title-per"><span>对公信贷产品</span></div>
+                                <div class="carousel3d-title-number">
+                                    <div><span>有效产品总数</span></div>
+                                    <div><span>27</span></div>
+                                </div>
+                            </div>
+                            <div class="carousel3d-wrap-person">
+                                <!-- <button class="carousel-btn prev" @click="prev">&#8592;</button> -->
+                                <div class="carousel3d" ref="carousel3d" @mouseenter="pausePerson"
+                                    @mouseleave="resumePerson" :style="carouselStylePerson">
+                                    <div v-for="(item, i) in itemsPerson" :key="i" class="carousel-item"
+                                        :style="itemStylePerson(i)" @mouseenter="showTooltip(item, $event)"
+                                        @mousemove="moveTooltip($event)" @mouseleave="hideTooltip">
+                                        <div class="brick3d">
+                                            <div v-for="j in segCountPerson" :key="j" class="brick-segment"
+                                                :style="segmentStylePerson(j-1)"></div>
+                                        </div>
+                                        <div class="carousel-item-label">{{ item }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <button class="carousel-btn next" @click="next">&#8594;</button> -->
+                            </div>
+                        </div>
+                        <div @click="next" class="btn3d">
+                            <img src="assets/images/riskAssets/right_jiantou.png" alt="">
+                        </div>
+                        <div v-if="tooltip.show" class="custom-tooltip"
+                            :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }">
+                            {{ tooltip.text }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <!-- 客户风险收益水平 -->
+        <div class="section-split-img">
+            <span class="section-split-title">客户风险收益水平情况表</span>
+        </div>
+        <!-- 底部 -->
+        <footer class="dashboard-footer">
+            <div class="footer-section">
+                <div class="card-group">
+                    <div class="card card-blue">
+                        <div class="card-value">3<span class="card-unit">%</span></div>
+                        <div class="card-label">当前风险收益水平</div>
+                    </div>
+                    <div class="card card-blue">
+                        <div class="card-value">2.68<span class="card-unit">%</span></div>
+                        <div class="card-label">年初风险收益水平</div>
+                    </div>
+                    <div class="card card-green">
+                        <div class="card-value">0.32<span class="card-unit">%</span></div>
+                        <div class="card-label">较年初变化</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-section">
+                <div class="echarts-timeline">
+                    <!-- 时间轴 -->
+                    <div class="timeline-horizontal-container" id="timeline-horizontal-container">
+                        <div class="timeline-horizontal-content">
+                            <div @click="prevPage" :disabled="pageIndex === 0">
+                                <img src="assets/images/riskAssets/icon_jiantou.png" alt="">
+                            </div>
+                            <!-- <el-button @click="prevPage" :disabled="pageIndex === 0" icon="el-icon-arrow-left"></el-button> -->
+                            <div class="timeline-horizontal">
+                                <div v-for="(item, idx) in visibleData" :key="item.id" class="timeline-horizontal-item"
+                                    :class="{ 'fade-in': showItems[idx] }" ref="timelineItem"
+                                    class="timeline-horizontal-item">
+                                    <!-- <div class="timeline-dot"></div> -->
+                                    <!-- <div class="timeline-label">{{ item.year }}</div> -->
+                                    <!-- 在第2和第3个时间点之间插入提示框 -->
+                                    <template v-if="item.tip">
+                                        <div class="between-tip-box">
+                                            <div class="tip-content">
+                                                2020年<br>
+                                                某政府数字化转型
+                                            </div>
+                                            <!-- 连接线 -->
+                                            <div class="tip-connector"></div>
+                                        </div>
+                                    </template>
+                                    <el-popover placement="bottom" width="200" trigger="hover" :content="item.desc">
+                                        <div slot="reference" class="timeline-dot"></div>
+                                    </el-popover>
+                                    <div class="timeline-label">
+                                        <div class="itemLine-green">{{ item.year }}</div>
+                                        <div>{{ item.platform }}</div>
+                                        <div>{{ item.desc }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div @click="nextPage" :disabled="endIndex >= elementTimeLineData.length">
+                                <img src="assets/images/riskAssets/right_jiantou.png" alt="">
+                            </div>
+                            <!-- <el-button @click="nextPage" :disabled="endIndex >= elementTimeLineData.length"
+                            icon="el-icon-arrow-right"></el-button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
-    <script>
-        var dataTest = [
-            [
-                {
-                    "serviceaddrName": "内勤",
-                    children:
-                        [
-                            {
-                                "payClassName": "社区售水",
-                                "count": 161,
-                                "charge": 38076.8
-                            },
-                            {
-                                "payClassName": "用户自主交费",
-                                "count": 63706,
-                                "charge": 6354611.06
-                            },
-                            {
-                                "payClassName": "第三方代理交费",
-                                "count": 125,
-                                "charge": 6090.810000000001
-                            },
-                            {
-                                "payClassName": "营业厅柜台交费",
-                                "count": 503,
-                                "charge": 21440782.71
-                            },
-                            {
-                                "payClassName": "第三方业务自助机交费",
-                                "count": 16,
-                                "charge": 8297.18
-                            },
-                            {
-                                "payClassName": "营业厅柜台购水",
-                                "count": 1,
-                                "charge": 29.4
-                            },
-                            {
-                                "payClassName": "第三方业务自助机购水",
-                                "count": 44,
-                                "charge": 9807.7
-                            },
-                            {
-                                "payClassName": "小额支付扣费",
-                                "count": 395,
-                                "charge": 3237684.5
-                            },
-                            {
-                                "payClassName": "银行代收扣费",
-                                "count": 15193,
-                                "charge": 630342
-                            }
-                        ]
-                }
-            ],
-            [
-                {
-                    "serviceaddrName": "烟台道营业厅",
-                    children: [
-                        {
-                            "payClassName": "营业厅其它交费",
-                            "count": 49,
-                            "charge": 5607.900000000001
-                        },
-                        {
-                            "payClassName": "营业厅柜台交费",
-                            "count": 1486,
-                            "charge": 657667.5
-                        },
-                        {
-                            "payClassName": "营业厅柜台购水",
-                            "count": 5315,
-                            "charge": 1213229.6
-                        },
-                        {
-                            "payClassName": "营业厅柜台购水",
-                            "count": 2266,
-                            "charge": 576906.1000000001
-                        }
-                    ]
-
-                }
-            ],
-            [
-                {
-                    "serviceaddrName": "福建路营业厅",
-                    children: [
-                        {
-                            "payClassName": "营业厅柜台交费",
-                            "count": 2497,
-                            "charge": 5263979.7299999995
-                        },
-                        {
-                            "payClassName": "营业厅其它交费",
-                            "count": 183,
-                            "charge": 124689.78000000001
-                        },
-                        {
-                            "payClassName": "第三方业务自助机购水",
-                            "count": 2,
-                            "charge": 343
-                        }
-                    ]
-
-                },
-            ],
-            [
-                {
-                    "serviceaddrName": "渤油新村营业厅",
-                    children: [
-                        {
-                            "payClassName": "营业厅柜台交费",
-                            "count": 128,
-                            "charge": 36226.1
-                        },
-                        {
-                            "payClassName": "营业厅柜台购水",
-                            "count": 36,
-                            "charge": 10360.3
-                        },
-                        {
-                            "payClassName": "营业厅其它交费",
-                            "count": 1,
-                            "charge": 916.3
-                        }
-                    ]
-
-                },
-            ],
-            [
-                {
-                    "serviceaddrName": "西部新城营业厅",
-                    children: [
-                        {
-                            "payClassName": "营业厅柜台交费",
-                            "count": 337,
-                            "charge": 98831.9
-                        },
-                        {
-                            "payClassName": "营业厅柜台购水",
-                            "count": 744,
-                            "charge": 169168.9
-                        },
-                        {
-                            "payClassName": "营业厅其它交费",
-                            "count": 7,
-                            "charge": 221.7
-                        }
-                    ]
-
-                },
-            ]
-        ];
-        console.log(dataTest);
-        const xdata = [];
-        const countCount = [];
-        for (let item of dataTest) {
-            for (let i of item) {
-                xdata.push(i.serviceaddrName);
-                for(let j of i.children){
-                    countCount.push(j.count);
-                }
-            }
-        }
-        console.log(xdata,countCount);
-        const mCharts = echarts.init(document.querySelector('div'), 'itcast');
-        let option = {
-            title: {
-                text: "线下业务缴费金额和笔数统计(按 营业网点 和 缴费方式)",
-                // textAlign: "center",
-            },
-            tooltip: {
-                trigger: "axis",
-                axisPointer: {
-                    // Use axis to trigger tooltip
-                    type: "shadow" // 'shadow' as default; can also be 'line' or 'shadow'
-                }
-            },
-            color: ["#118DFD", "#17278A", "#E96737", "#680078", "#D83EA0"],
-            legend: {
-                x: "right",
-                align: "left",
-                width: 300,
-                formatter: ["{a|{name}}"].join("\n"),
-                textStyle: {
-                    rich: {
-                        a: {
-                            width: 45,
-                            fontSize: 12,
-                            lineHeight: 12
-                        }
-                    }
-                }
-            },
-            grid: {
-                left: "3%",
-                right: "4%",
-                bottom: "3%",
-                containLabel: true
-            },
-            xAxis: {
-                name: "营业网点",
-                type: "category",
-                data: xdata,
-                axisLabel: { interval: 0, rotate: 25 },
-                nameGap: 50, // x轴name与横坐标轴线的间距
-                nameLocation: "middle" // x轴name处于x轴的什么位置
-            },
-            yAxis: [
-                {
-                    type: "value",
-                    name: "金额",
-                    axisLabel: {
-                        formatter: "{value} 百万"
-                    },
-                    nameRotate: 90, // y轴name旋转90度 使其垂直
-                    nameGap: 50, // y轴name与横纵坐标轴线的间距
-                    nameLocation: "middle" // y轴name处于y轴的什么位置
-                },
-                {
-                    type: "value",
-                    name: "笔数的总和",
-                    axisLabel: {
-                        formatter: "{value} 笔"
-                    },
-                    nameRotate: 90, // y轴name旋转90度 使其垂直
-                    nameGap: 50, // y轴name与横纵坐标轴线的间距
-                    nameLocation: "middle" // y轴name处于y轴的什么位置
-                }
-            ],
-            series: [
-                {
-                    name: "刷卡",
-                    type: "bar",
-                    stack: "total",
-                    label: {
-                        show: true
-                    },
-                    emphasis: {
-                        focus: "series"
-                    },
-                    data: [320, 302, 301, 334, 390, 330, 320]
-                },
-                {
-                    name: "现金",
-                    type: "bar",
-                    stack: "total",
-                    label: {
-                        show: true
-                    },
-                    emphasis: {
-                        focus: "series"
-                    },
-                    data: [120, 132, 101, 134, 90, 230, 210]
-                },
-                {
-                    name: "支付扫码",
-                    type: "bar",
-                    stack: "total",
-                    label: {
-                        show: true
-                    },
-                    emphasis: {
-                        focus: "series"
-                    },
-                    data: [220, 182, 191, 234, 290, 330, 310]
-                },
-                {
-                    name: "支票",
-                    type: "bar",
-                    stack: "total",
-                    label: {
-                        show: true
-                    },
-                    emphasis: {
-                        focus: "series"
-                    },
-                    data: [150, 212, 201, 154, 190, 330, 410]
-                },
-                {
-                    name: "笔数的总和",
-                    type: "line",
-                    yAxisIndex: 1,
-                    label: {
-                        show: true
-                    },
-                    emphasis: {
-                        focus: "series"
-                    },
-                    data: countCount
-                }
-            ]
-        };
-        mCharts.setOption(option, true);
-    </script>
+    <script src="assets/js/createVue.js"></script>
+    <script src="assets/js/map.js"></script>
 </body>
 
 </html>
